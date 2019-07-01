@@ -1,0 +1,41 @@
+{
+    "name": "bajaklautmalaka/pmi-donatur",
+    "description": "A description for pmi-donatur.",
+    "type": "package",
+    "license": "MIT",
+    "keywords": [
+        "laravel"
+    ],
+    "authors": [
+        {
+            "name": "bajaklautmalaka@gmail.com",
+            "email": "bajaklautmalaka@gmail.com"
+        }
+    ],
+    "require": {
+        "illuminate/support": "~5.7.0|~5.8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "BajakLautMalaka\\PmiDonatur\\": "./src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "BajakLautMalaka\\PmiDonatur\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "BajakLautMalaka\\PmiDonatur\\PmiDonaturServiceProvider"
+            ]
+        }
+    },
+    "require-dev": {
+        "orchestra/testbench": "^3.8"
+    }
+}
