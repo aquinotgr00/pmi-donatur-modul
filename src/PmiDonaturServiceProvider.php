@@ -4,6 +4,7 @@ namespace BajakLautMalaka\PmiDonatur;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Factory;
+use Illuminate\Routing\RouteRegistrar;
 
 class PmiDonaturServiceProvider extends ServiceProvider
 {
@@ -22,11 +23,12 @@ class PmiDonaturServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot(Factory $factory)
+    public function boot(Factory $factory,RouteRegistrar $routeRegistrar)
     {
         $this->mergeAuthConfig();
         $this->loadConfig();
         $this->loadMigrationsAndFactories($factory);
+        $this->loadRoutes($routeRegistrar);
     }
 
     /**
@@ -60,7 +62,7 @@ class PmiDonaturServiceProvider extends ServiceProvider
      */
     private function loadConfig()
     {
-        $path = __DIR__.'/../config/donator.php';
+        $path = __DIR__ . '/../config/donator.php';
         $this->mergeConfigFrom($path, 'donator');
 
         if ($this->app->runningInConsole()) {
@@ -78,9 +80,24 @@ class PmiDonaturServiceProvider extends ServiceProvider
     private function loadMigrationsAndFactories(Factory $factory): void
     {
         if ($this->app->runningInConsole()) {
-            $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+            $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 
-            $factory->load(__DIR__.'/../database/factories');
+            $factory->load(__DIR__ . '/../database/factories');
         }
+    }
+    /**
+     * Register any load routes
+     *
+     * @param RouteRegistrar $routeRegistrar
+     * @return void
+     */
+    private function loadRoutes(RouteRegistrar $routeRegistrar): void
+    {
+        $routeRegistrar->prefix('api')
+            ->namespace('BajakLautMalaka\PmiDonatur\Http\Controllers\Api')
+            ->middleware(['api'])
+            ->group(function () {
+                $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
+            });
     }
 }
