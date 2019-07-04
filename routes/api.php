@@ -10,9 +10,11 @@ Route::group(['prefix' => 'donators'], function () {
     Route::post('password/change', 'DonatorController@changePassword')->name("auth.donator.token.password.change");
 });
 
-
-Route::get('campaigns', 'CampaignApiController@index')->name("campaigns.index");
-Route::post('campaign', 'CampaignApiController@store')->name("campaign.store");
-Route::get('campaigns/{id}', 'CampaignApiController@show')->name("campaigns.show");
-Route::put('campaigns/{id}', 'CampaignApiController@update')->name("campaigns.update");
-Route::delete('campaigns/{id}', 'CampaignApiController@delete')->name("campaigns.delete");
+Route::group(['middleware' => 'auth:admin'], function () {
+    Route::get('campaigns', 'CampaignApiController@index')->name("campaigns.index");
+    Route::post('campaign', 'CampaignApiController@store')->name("campaign.store");
+    Route::get('campaigns/{id}', 'CampaignApiController@show')->name("campaigns.show");
+    Route::put('campaigns/{id}', 'CampaignApiController@update')->name("campaigns.update");
+    Route::delete('campaigns/{id}', 'CampaignApiController@delete')->name("campaigns.delete");
+    Route::post('campaign/update/finish/{id}', 'CampaignApiController@updateFinishCampaign')->name("campaign.update.finish");
+});

@@ -8,7 +8,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Campaign extends Model
 {
     use SoftDeletes;
-    protected $fillable = ['user_id', 'type_id', 'title', 'image', 'description', 'amount_goal', 'start_campaign', 'finish_campaign'];
+    protected $fillable = [
+        'admin_id', 'type_id', 'title','image_file_name',
+        'image', 'description', 'amount_goal',
+        'start_campaign', 'finish_campaign','fundraising'
+    ];
     protected $appends  = ['amount_donation'];
     /**
      * get amount donations
@@ -65,9 +69,11 @@ class Campaign extends Model
     {
         if (isset($data->finish_campaign)) {
             $campaign = static::where('id', $id)->first();
-            $campaign->finish_campaign = $data->finish_campaign;
-            $campaign->update();
-            return $campaign;
+            if (!is_null($campaign)) {
+                $campaign->finish_campaign = $data->finish_campaign;
+                $campaign->update();
+                return $campaign;
+            }
         }
         return false;
     }

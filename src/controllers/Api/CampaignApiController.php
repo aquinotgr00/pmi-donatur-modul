@@ -63,7 +63,6 @@ class CampaignApiController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'user_id' => 'required|numeric',
             'type_id' => 'required|exists:campaign_types,id',
             'title' => 'required|unique:campaigns',
             'image_file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
@@ -71,23 +70,32 @@ class CampaignApiController extends Controller
             'amount_goal' => 'required|numeric',
             'start_campaign' => 'date',
             'finish_campaign' => 'date',
-            'fundraising' => 'boolean'
+            'fundraising' => 'required|boolean'
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->messages());
         }
 
-        $image = $request->file('image_file');
-        $extension = $image->getClientOriginalExtension();
-        Storage::disk('public')->put($image->getFilename() . '.' . $extension,  File::get($image));
+        if (isset($request->user()->id)) {
+            $request->request->add(['admin_id' => $request->user()->id]);
+        }
 
-        $image_url = url('images/campaign/' . $image->getFilename() . '.' . $extension);
+        $image      = $request->file('image_file');
+        $extension  = $image->getClientOriginalExtension();
+        $file_name  = $image->getFilename() . '.' . $extension;
+
+        Storage::disk('public')->put($file_name,  File::get($image));
+
+        $image_url = url('storage/' . $file_name);
         
+
         $request->request->add(['image' => $image_url]);
+        $request->request->add(['image_file_name' => $file_name]);
 
         $campaign = Campaign::create($request->except('_token'));
-
+        $campaign->getType;
+        $campaign->getDonations;
         return response()->json(['data' => $campaign]);
     }
     /**
@@ -113,9 +121,8 @@ class CampaignApiController extends Controller
     public function update(Request $request, int $id)
     {
         $validator = Validator::make($request->all(), [
-            'user_id' => 'numeric',
             'type_id' => 'exists:campaign_types,id',
-            'title' => 'required',
+            'title' => 'unique:campaigns,title,'.$id.',id',
             'image_file' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'description' => 'required',
             'amount_goal' => 'required|numeric',
@@ -128,24 +135,31 @@ class CampaignApiController extends Controller
             return response()->json($validator->messages());
         }
 
+        if (isset($request->user()->id)) {
+            $request->request->add(['admin_id' => $request->user()->id]);
+        }
+
         $campaign = Campaign::find($id);
 
         if (!is_null($campaign)) {
 
             if ($request->has('image_file')) {
-                $image = $request->file('image_file');
-                $extension = $image->getClientOriginalExtension();
-                Storage::disk('public')->put($image->getFilename() . '.' . $extension,  File::get($image));
+                $image      = $request->file('image_file');
+                $extension  = $image->getClientOriginalExtension();
+                $file_name  = $image->getFilename() . '.' . $extension;
 
-                if (file_exists(public_path($campaign->image))) {
-                    Storage::delete(public_path($campaign->image));
+                Storage::disk('public')->put($file_name,  File::get($image));
+
+                if (file_exists(storage_path('app/public/'.$campaign->image_file_name))) {
+                    unlink(storage_path('app/public/'.$campaign->image_file_name));
                 }
 
-                $image_url = url('images/campaign/' . $image->getFilename() . '.' . $extension);
+                $image_url = url('storage/' . $file_name);
                 $request->request->add(['image' => $image_url]);
+                $request->request->add(['image_file_name' => $file_name]);
             }
 
-            $campaign->update($request->except('_token','_method'));
+            $campaign->update($request->except('_token', '_method'));
         }
 
         return response()->json(['data' => $campaign]);
@@ -165,12 +179,34 @@ class CampaignApiController extends Controller
                 'status' => 200,
                 'message' => 'Success! to delete campaign'
             ];
-        }else{
+        } else {
             $data = [
                 'status' => 404,
                 'message' => 'Error! data not found'
             ];
         }
         return response()->json(['data' => $data]);
+    }
+
+    public function updateFinishCampaign(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'finish_campaign' => 'required|date',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->messages());
+        }
+        $data = (object) [
+            'finish_campaign' => $request->finish_campaign
+        ];
+        $campaign = Campaign::updateFinishCampaign($data, $id);
+        if (isset($campaign->getType)) {
+            $campaign->getType;
+        }
+        if (isset($campaign->getDonations)) {
+            $campaign->getDonations;
+        }
+        return response()->json(['data' => $campaign]);
     }
 }
