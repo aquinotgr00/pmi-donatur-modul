@@ -7,6 +7,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Support\Facades\Storage;
+use BajakLautMalaka\PmiDonatur\Campaign;
 
 class CampaignUnitTest extends TestCase
 {
@@ -51,7 +52,15 @@ class CampaignUnitTest extends TestCase
 
     public function testUpdateCampaign()
     {
-        $this->postJson('api/campaigns/1', [
+        $campaign = Campaign::create([
+            'image' => 'http://google.com',
+            'type_id' => 1,
+            'admin_id' => 1,
+            'title' => $this->faker->unique()->name,
+            'description' => 'lorem ipsum',
+            'amount_goal' => 10000
+        ]);
+        $this->postJson('api/campaigns/'.$campaign->id, [
             'title' => 'cek update',
             'description' => 'lorem ipsum',
             'amount_goal' => 10000,
@@ -62,7 +71,15 @@ class CampaignUnitTest extends TestCase
 
     public function testDetailsCampaign()
     {
-        $this->getJson('api/campaigns/1')->assertStatus(200)
+        $campaign = Campaign::create([
+            'image' => 'http://google.com',
+            'type_id' => 1,
+            'admin_id' => 1,
+            'title' => $this->faker->unique()->name,
+            'description' => 'lorem ipsum',
+            'amount_goal' => 10000
+        ]);
+        $this->getJson('api/campaigns/'.$campaign->id)->assertStatus(200)
             ->assertJsonStructure([
                 'data' => [
                     'id',
