@@ -7,3 +7,10 @@ Route::post('token/verify', 'DonatorController@verifyDonatorAccessToken')->name(
 Route::post('token/signin', 'DonatorController@tokenMemberVerification')->name("auth.donator.token.signin");
 Route::post('password/reset', 'DonatorController@createTokenForgotPassword')->name("auth.donator.token.password.reset");
 Route::post('password/change', 'DonatorController@changePassword')->name("auth.donator.token.password.change");
+
+
+Route::get('campaigns', 'CampaignApiController@index')->name("campaigns.index");
+Route::post('campaign', 'CampaignApiController@store')->name("campaign.store");
+Route::get('campaigns/{id}', 'CampaignApiController@show')->name("campaigns.show");
+Route::put('campaigns/{id}', 'CampaignApiController@update')->name("campaigns.update");
+Route::delete('campaigns/{id}', 'CampaignApiController@delete')->name("campaigns.delete");

@@ -1,6 +1,6 @@
 <?php
 
-namespace BajakLautMalaka\PmiDonatur\Controllers;
+namespace BajakLautMalaka\PmiDonatur\Controllers\Api;
 
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;

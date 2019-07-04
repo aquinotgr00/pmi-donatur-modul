@@ -38,7 +38,7 @@ class PmiDonaturServiceProvider extends ServiceProvider
      */
     private function loadConfig()
     {
-        $path = __DIR__.'/../config/donator.php';
+        $path = __DIR__ . '/../config/donator.php';
         $this->mergeConfigFrom($path, 'donator');
 
         if ($this->app->runningInConsole()) {
@@ -56,9 +56,9 @@ class PmiDonaturServiceProvider extends ServiceProvider
     private function loadMigrationsAndFactories(Factory $factory): void
     {
         if ($this->app->runningInConsole()) {
-            $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+            $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 
-            $factory->load(__DIR__.'/../database/factories');
+            $factory->load(__DIR__ . '/../database/factories');
         }
     }
 
@@ -67,8 +67,9 @@ class PmiDonaturServiceProvider extends ServiceProvider
      */
     private function loadRoutes(Router $router): void
     {
-        $router->prefix(config('donator.prefix', 'donator'))
-               ->namespace('BajakLautMalaka\PmiDonatur\Controllers')
+        $router->prefix(config('donator.prefix', 'api.donator'))
+               ->namespace('BajakLautMalaka\PmiDonatur\Controllers\Api')
+               ->middleware(['api'])
                ->group(function () {
                    $this->loadRoutesFrom(__DIR__.'/../routes/api.php');
                });
