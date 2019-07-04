@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateAccessTokensTable extends Migration
+class CreateDonationItemsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,12 @@ class CreateAccessTokensTable extends Migration
      */
     public function up()
     {
-        Schema::create('access_tokens', function (Blueprint $table) {
+        Schema::create('donation_items', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('token');
-            $table->unsignedInteger('donator_id');
-            $table->timestamp('expired_at');
+            $table->unsignedInteger('donation_id');
+            $table->string('type');
+            $table->string('name');
+            $table->string('amount');
             $table->timestamps();
         });
     }
@@ -29,6 +30,6 @@ class CreateAccessTokensTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('access_tokens');
+        Schema::dropIfExists('donation_items');
     }
 }

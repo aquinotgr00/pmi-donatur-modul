@@ -2,29 +2,23 @@
 
 namespace BajakLautMalaka\PmiDonatur;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
+use BajakLautMalaka\PmiDonatur\Jobs\SendEmailRegistration;
 
-class Donator extends Authenticatable
+class Donator extends Model
 {
+    use Notifiable;
+
     /**
      * The attributes that are mass assignable.
      * 
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'phone', 'address', 'gender',
-        'dob', 'subdistrict', 'city', 'username',
-        'verified', 'postal_code'
-    ];
-
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
+        'name', 'phone', 'image', 'dob', 'address',
+        'province', 'city', 'subdistrict', 'subdivision',
+        'postal_code', 'gender', 'verified'
     ];
 
     /**
@@ -79,5 +73,17 @@ class Donator extends Authenticatable
         if (class_exists('Donation')) {
             return $this->hasMany('Donation');
         }
+    }
+    
+    /**
+     * Sending email and access token to login / verification
+     *
+     * @param  array  $data
+     *
+     * @return void
+     */
+    public function sendEmailAndToken($data)
+    {
+        dispatch(new SendEmailRegistration($data));
     }
 }

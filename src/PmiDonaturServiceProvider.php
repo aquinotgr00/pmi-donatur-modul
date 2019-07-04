@@ -4,6 +4,7 @@ namespace BajakLautMalaka\PmiDonatur;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Factory;
+use Illuminate\Routing\RouteRegistrar as Router;
 
 class PmiDonaturServiceProvider extends ServiceProvider
 {
@@ -22,35 +23,12 @@ class PmiDonaturServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot(Factory $factory)
+    public function boot(Factory $factory, Router $router)
     {
-        $this->mergeAuthConfig();
         $this->loadConfig();
         $this->loadMigrationsAndFactories($factory);
-    }
-
-    /**
-     * Merger any auth config from package donator.
-     *
-     * @return void
-     */
-    private function mergeAuthConfig()
-    {
-        /** @var \Illuminate\Config\Repository */
-        $config = $this->app['config'];
-
-        $original = $config->get('auth', []);
-        $toMerge = require __DIR__ . '/../config/auth.php';
-
-        $auth = [];
-        foreach ($original as $key => $value) {
-            $auth[$key] = $value;
-            if (isset($toMerge[$key])) {
-                $auth[$key] = array_merge($value, $toMerge[$key]);
-            }
-        }
-
-        $config->set('auth', $auth);
+        $this->loadRoutes($router);
+        $this->loadViews();
     }
 
     /**
@@ -81,6 +59,35 @@ class PmiDonaturServiceProvider extends ServiceProvider
             $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
 
             $factory->load(__DIR__.'/../database/factories');
+        }
+    }
+
+    /**
+     * Register any load routes.
+     */
+    private function loadRoutes(Router $router): void
+    {
+        $router->prefix(config('donator.prefix', 'donator'))
+               ->namespace('BajakLautMalaka\PmiDonatur\Controllers')
+               ->group(function () {
+                   $this->loadRoutesFrom(__DIR__.'/../routes/api.php');
+               });
+    }
+
+    /**
+     * Register any load view.
+     *
+     * @return void
+     */
+    private function loadViews()
+    {
+        $path = __DIR__.'/resources/views';
+        $this->loadViewsFrom($path, 'donator');
+
+        if ($this->app->runningInConsole()) {
+            $this->publishes([
+                $path => resource_path('views/bajaklautmalaka/donator'),
+            ], 'donator:views');
         }
     }
 }
