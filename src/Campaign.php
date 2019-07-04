@@ -11,7 +11,8 @@ class Campaign extends Model
     protected $fillable = [
         'admin_id', 'type_id', 'title','image_file_name',
         'image', 'description', 'amount_goal',
-        'start_campaign', 'finish_campaign','fundraising'
+        'start_campaign', 'finish_campaign','fundraising',
+        'publish'
     ];
     protected $appends  = ['amount_donation'];
     /**

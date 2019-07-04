@@ -28,7 +28,8 @@ class CampaignUnitTest extends TestCase
             'type_id' => 1,
             'title' => $this->faker->unique()->name,
             'description' => 'lorem ipsum',
-            'amount_goal' => 10000
+            'amount_goal' => 10000,
+            'publish'=> 1,
         ];
 
         $response = $this->json('POST', '/api/campaign', $data);
@@ -46,6 +47,7 @@ class CampaignUnitTest extends TestCase
             'title' => $this->faker->unique()->name,
             'description' => 'lorem ipsum',
             'amount_goal' => 10000,
+            'publish'=> 1,
         ])->assertStatus(200)
             ->assertSee('image');
     }
@@ -58,7 +60,8 @@ class CampaignUnitTest extends TestCase
             'admin_id' => 1,
             'title' => $this->faker->unique()->name,
             'description' => 'lorem ipsum',
-            'amount_goal' => 10000
+            'amount_goal' => 10000,
+            'publish'=> 1,
         ]);
         $this->postJson('api/campaigns/'.$campaign->id, [
             'title' => 'cek update',
@@ -77,7 +80,8 @@ class CampaignUnitTest extends TestCase
             'admin_id' => 1,
             'title' => $this->faker->unique()->name,
             'description' => 'lorem ipsum',
-            'amount_goal' => 10000
+            'amount_goal' => 10000,
+            'publish'=> 1,
         ]);
         $this->getJson('api/campaigns/'.$campaign->id)->assertStatus(200)
             ->assertJsonStructure([
