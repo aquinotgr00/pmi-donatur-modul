@@ -75,6 +75,7 @@ class DonatorController extends Controller
         ]);
 
         // TODO: add custom user fields to config so that anyone could adjust
+        // TODO: handle user uploaded image
         $user = $this->users->create($request->only(['name', 'email', 'password']));
         $token = $user->createToken('Personal Access Token');
         
@@ -146,7 +147,7 @@ class DonatorController extends Controller
     public function createTokenForgotPassword(Request $request)
     {
         $request->validate([
-            'email' => 'required|string|email',
+            'email'      => 'required|string|email',
             'url_action' => 'required'
         ]);
 
@@ -161,7 +162,7 @@ class DonatorController extends Controller
             $this->passwordResets->create(['token' => $token, 'email' => $request->email]);
 
             $data = [
-                'email' => $request->email,
+                'email'   => $request->email,
                 'content' => $request->url_action."/".$token
             ];
             $this->donators->sendEmailAndTokenReset($data);
@@ -186,7 +187,7 @@ class DonatorController extends Controller
     public function changePassword(Request $request)
     {
         $request->validate([
-            "token" => "required",
+            "token"    => "required",
             "password" => "required|confirmed"
         ]);
 
@@ -206,7 +207,7 @@ class DonatorController extends Controller
             $this->donators->sendEmailSuccess($data);
 
             $response = [
-                "message" => "Password sucessfully changed.",
+                "message"      => "Password sucessfully changed.",
                 "access_token" => $token->accessToken
             ];
             $status = 200;
