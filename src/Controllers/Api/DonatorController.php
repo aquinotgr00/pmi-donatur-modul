@@ -224,7 +224,9 @@ class DonatorController extends Controller
      */
     public function updateDonatorProfile(Request $request, $id)
     {
-        $this->guard('auth:api');
+        // TODO: add auth guard
+        // $this->guard('auth:api');
+
         $donator = $this->donators->find($id);
         $donator->update($request->all());
         
