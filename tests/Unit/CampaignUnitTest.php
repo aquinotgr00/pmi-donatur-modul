@@ -5,11 +5,14 @@ namespace BajakLautMalaka\PmiDonatur\Tests\Unit;
 use Tests\TestCase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Support\Facades\Storage;
+use BajakLautMalaka\PmiDonatur\Campaign;
 
 class CampaignUnitTest extends TestCase
 {
     use WithFaker;
+    use WithoutMiddleware;
 
     public function testListCampaign()
     {
@@ -18,19 +21,20 @@ class CampaignUnitTest extends TestCase
         $response->assertSee('data');
     }
 
-    public function testCreateCampaignWithoutUserID()
+    public function testCreateCampaignWithoutImage()
     {
         $data = [
             'image_file' => '',
             'type_id' => 1,
             'title' => $this->faker->unique()->name,
             'description' => 'lorem ipsum',
-            'amount_goal' => 10000
+            'amount_goal' => 10000,
+            'publish'=> 1,
         ];
 
         $response = $this->json('POST', '/api/campaign', $data);
         $response->assertStatus(200);
-        $response->assertSee('user_id');
+        $response->assertSee('image_file');
     }
 
     public function testCreateCampaignCompleted()
@@ -38,18 +42,28 @@ class CampaignUnitTest extends TestCase
         Storage::fake('public');
         $this->postJson('api/campaign', [
             'image_file' => $file = UploadedFile::fake()->image('image.jpg', 1, 1),
-            'user_id' => 1,
+            'fundraising' => 1,
             'type_id' => 1,
             'title' => $this->faker->unique()->name,
             'description' => 'lorem ipsum',
             'amount_goal' => 10000,
+            'publish'=> 1,
         ])->assertStatus(200)
             ->assertSee('image');
     }
 
     public function testUpdateCampaign()
     {
-        $this->postJson('api/campaigns/1', [
+        $campaign = Campaign::create([
+            'image' => 'http://google.com',
+            'type_id' => 1,
+            'admin_id' => 1,
+            'title' => $this->faker->unique()->name,
+            'description' => 'lorem ipsum',
+            'amount_goal' => 10000,
+            'publish'=> 1,
+        ]);
+        $this->postJson('api/campaigns/'.$campaign->id, [
             'title' => 'cek update',
             'description' => 'lorem ipsum',
             'amount_goal' => 10000,
@@ -60,11 +74,20 @@ class CampaignUnitTest extends TestCase
 
     public function testDetailsCampaign()
     {
-        $this->getJson('api/campaigns/1')->assertStatus(200)
+        $campaign = Campaign::create([
+            'image' => 'http://google.com',
+            'type_id' => 1,
+            'admin_id' => 1,
+            'title' => $this->faker->unique()->name,
+            'description' => 'lorem ipsum',
+            'amount_goal' => 10000,
+            'publish'=> 1,
+        ]);
+        $this->getJson('api/campaigns/'.$campaign->id)->assertStatus(200)
             ->assertJsonStructure([
                 'data' => [
                     'id',
-                    'user_id',
+                    'fundraising',
                     'type_id',
                     'title',
                     'image',
@@ -87,7 +110,7 @@ class CampaignUnitTest extends TestCase
                         'updated_at'
                     ],
                     'get_donations' => []
-                
+
                 ]
             ]);
     }

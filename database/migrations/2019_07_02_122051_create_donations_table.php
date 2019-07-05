@@ -15,13 +15,18 @@ class CreateDonationsTable extends Migration
     {
         Schema::create('donations', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->string('name')->nullable();
+            $table->string('email')->nullable();
+            $table->string('phone')->nullable();
             $table->unsignedInteger('campaign_id');
-            $table->unsignedInteger('donator_id');
-            $table->unsignedInteger('volunteer_id');
-            $table->bigInteger('amount')->nullable();
-            $table->text('description')->nullable();
-            $table->enum('pick_method', ['send', 'take'])->nullable();
+            $table->unsignedInteger('donator_id')->nullable();
+            $table->integer('category');
+            $table->bigInteger('amount')->default(0);
+            $table->string('pick_method')->nullable();
+            $table->string('payment_method')->nullable();
             $table->integer('status')->default(1);
+            $table->boolean('guest')->default(false);
+            $table->boolean('anonym')->default(false);
             $table->timestamps();
             $table->softDeletes();
         });

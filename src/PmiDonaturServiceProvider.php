@@ -4,7 +4,7 @@ namespace BajakLautMalaka\PmiDonatur;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Factory;
-use Illuminate\Routing\RouteRegistrar;
+use Illuminate\Routing\RouteRegistrar as Router;
 
 class PmiDonaturServiceProvider extends ServiceProvider
 {
@@ -23,36 +23,12 @@ class PmiDonaturServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot(Factory $factory,RouteRegistrar $routeRegistrar)
+    public function boot(Factory $factory, Router $router)
     {
-        $this->mergeAuthConfig();
         $this->loadConfig();
         $this->loadMigrationsAndFactories($factory);
-        $this->loadRoutes($routeRegistrar);
-    }
-
-    /**
-     * Merger any auth config from package donator.
-     *
-     * @return void
-     */
-    private function mergeAuthConfig()
-    {
-        /** @var \Illuminate\Config\Repository */
-        $config = $this->app['config'];
-
-        $original = $config->get('auth', []);
-        $toMerge = require __DIR__ . '/../config/auth.php';
-
-        $auth = [];
-        foreach ($original as $key => $value) {
-            $auth[$key] = $value;
-            if (isset($toMerge[$key])) {
-                $auth[$key] = array_merge($value, $toMerge[$key]);
-            }
-        }
-
-        $config->set('auth', $auth);
+        $this->loadRoutes($router);
+        $this->loadViews();
     }
 
     /**
@@ -85,19 +61,34 @@ class PmiDonaturServiceProvider extends ServiceProvider
             $factory->load(__DIR__ . '/../database/factories');
         }
     }
+
     /**
-     * Register any load routes
+     * Register any load routes.
+     */
+    private function loadRoutes(Router $router): void
+    {
+        $router->prefix(config('donator.prefix', 'api.donator'))
+               ->namespace('BajakLautMalaka\PmiDonatur\Controllers\Api')
+               ->middleware(['api'])
+               ->group(function () {
+                   $this->loadRoutesFrom(__DIR__.'/../routes/api.php');
+               });
+    }
+
+    /**
+     * Register any load view.
      *
-     * @param RouteRegistrar $routeRegistrar
      * @return void
      */
-    private function loadRoutes(RouteRegistrar $routeRegistrar): void
+    private function loadViews()
     {
-        $routeRegistrar->prefix('api')
-            ->namespace('BajakLautMalaka\PmiDonatur\Http\Controllers\Api')
-            ->middleware(['api'])
-            ->group(function () {
-                $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
-            });
+        $path = __DIR__.'/resources/views';
+        $this->loadViewsFrom($path, 'donator');
+
+        if ($this->app->runningInConsole()) {
+            $this->publishes([
+                $path => resource_path('views/bajaklautmalaka/donator'),
+            ], 'donator:views');
+        }
     }
 }

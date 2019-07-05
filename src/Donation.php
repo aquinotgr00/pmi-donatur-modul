@@ -12,8 +12,9 @@ class Donation extends Model
      * @var array
      */
     protected $fillable = [
-        'campaign_id', 'donator_id', 'volunteer_id', 'amount',
-        'description', 'pick_method', 'status'
+        'name', 'email', 'phone', 'campaign_id',
+        'donator_id', 'amount', 'pick_method',
+        'payment_method', 'status', 'guest', 'anonym'
     ];
 
     /**
@@ -28,17 +29,6 @@ class Donation extends Model
         return $this->where('id', $id)
                     ->update(['status' => $status]);
     }
-    
-    /**
-     * Get the donation donator's name.
-     *
-     * @param  string  $value
-     * @return string
-     */
-    public function getDonatorNameAttribute($value)
-    {
-        return ucwords($value->donator->name);
-    }
 
     public function donator()
     {
@@ -47,10 +37,10 @@ class Donation extends Model
         }
     }
     
-    public function volunteer()
+    public function donationItems()
     {
-        if (class_exists('BajakLautMalaka\pmi-relawan\Volunteer')) {
-            return $this->belongsTo('BajakLautMalaka\pmi-relawan\Volunteer');
+        if (class_exists('DonationItem')) {
+            return $this->hasMany('DonationItem');
         }
     }
 }

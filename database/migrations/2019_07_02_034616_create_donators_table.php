@@ -15,20 +15,19 @@ class CreateDonatorsTable extends Migration
     {
         Schema::create('donators', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->unsignedInteger('user_id')->nullable();
             $table->string('name');
-            $table->string('email')->unique();
-            $table->string('username')->nullable();
             $table->string('phone')->unique();
+            $table->string('image')->nullable();
             $table->string('dob')->nullable();
             $table->longText('address')->nullable();
-            $table->string('subdistrict')->nullable();
+            $table->string('province')->nullable();
             $table->string('city')->nullable();
+            $table->string('subdistrict')->nullable();
+            $table->string('subdivision')->nullable();
             $table->string('postal_code')->nullable();
             $table->enum('gender', ['male ', 'female'])->nullable();
             $table->boolean('verified')->default(false);
-            $table->string('password');
-            $table->string('reset_token')->nullable();
-            $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
         });
