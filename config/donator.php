@@ -6,6 +6,6 @@ return [
         1 => 'Menunggu',
         2 => 'Berhasil',
         3 => 'Dibatalkan',
-        3 => 'Selesai',
+        4 => 'Selesai',
     ]
 ];
