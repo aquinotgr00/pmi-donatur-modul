@@ -5,6 +5,8 @@ namespace BajakLautMalaka\PmiDonatur;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use BajakLautMalaka\PmiDonatur\Jobs\SendEmailRegistration;
+use BajakLautMalaka\PmiDonatur\Jobs\SendEmailDonatorResetPassword;
+use BajakLautMalaka\PmiDonatur\Jobs\SendEmailSuccess;
 
 class Donator extends Model
 {
@@ -18,20 +20,8 @@ class Donator extends Model
     protected $fillable = [
         'name', 'phone', 'image', 'dob', 'address',
         'province', 'city', 'subdistrict', 'subdivision',
-        'postal_code', 'gender', 'verified'
-    ];
-
-    /**
-     * find user by username or email using passport
-     *
-     * @param  mixed $identifier
-     *
-     * @return mixed
-     */
-    public function findForPassport($identifier)
-    {
-        return $this->orWhere('email', $identifier)->orWhere('username', $identifier)->first();
-    }    
+        'postal_code', 'gender', 'verified', 'user_id'
+    ]; 
 
     /**
      * Get the member's name.
@@ -85,5 +75,29 @@ class Donator extends Model
     public function sendEmailAndToken($data)
     {
         dispatch(new SendEmailRegistration($data));
+    }
+
+    /**
+     * sending email and access token to Forgot / reset password
+     *
+     * @param  array  $data
+     *
+     * @return void
+     */
+    public function sendEmailAndTokenReset($data)
+    {
+        dispatch(new SendEmailDonatorResetPassword($data));
+    }
+    
+    /**
+     * Sending email that use successfully change their password.
+     *
+     * @param  array  $data
+     *
+     * @return void
+     */
+    public function sendEmailSuccess($data)
+    {
+        dispatch(new SendEmailSuccess($data));
     }
 }

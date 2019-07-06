@@ -20,6 +20,8 @@ class CreateDonationsTable extends Migration
             $table->string('phone')->nullable();
             $table->unsignedInteger('campaign_id');
             $table->unsignedInteger('donator_id')->nullable();
+            $table->unsignedInteger('admin_id')->nullable();
+            $table->string('image');
             $table->integer('category');
             $table->bigInteger('amount')->default(0);
             $table->string('pick_method')->nullable();
