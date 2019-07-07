@@ -4,7 +4,7 @@ namespace BajakLautMalaka\PmiDonatur\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateCampaignRequest extends FormRequest
+class StoreGoodCampaignRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,15 +24,13 @@ class UpdateCampaignRequest extends FormRequest
     public function rules()
     {
         return [
-            'type_id' => 'exists:campaign_types,id',
-            'title' => 'unique:campaigns,title,' .$this->get('id') . ',id',
-            'image_file' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'type_id' => 'required|exists:campaign_types,id',
+            'title' => 'required|unique:campaigns',
+            'image_file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'description' => 'required',
-            'amount_goal' => 'numeric',
             'start_campaign' => 'date',
             'finish_campaign' => 'date',
-            'fundraising' => 'boolean',
-            'publish'=>'boolean'
+            'publish'=>'required|boolean'
         ];
     }
 

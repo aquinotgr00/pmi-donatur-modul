@@ -27,5 +27,11 @@ class ModifyCampaignUserToAdminId extends Migration
      * @return void
      */
     public function down()
-    { }
+    {
+        if (Schema::hasColumn('campaigns', 'admin_id')) {
+            Schema::table('campaigns', function (Blueprint $table) {
+                $table->dropColumn('admin_id');
+            });
+        }
+    }
 }

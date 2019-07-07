@@ -21,6 +21,8 @@ Route::group(['middleware' => 'auth:admin'], function () {
     Route::put   ('campaigns/{id}'             , 'CampaignApiController@update'              )->name("campaigns.update"      );
     Route::delete('campaigns/{id}'             , 'CampaignApiController@delete'              )->name("campaigns.delete"      );
     Route::post  ('campaign/update/finish/{id}', 'CampaignApiController@updateFinishCampaign')->name("campaign.update.finish");
+    Route::post  ('campaign/store/month'       , 'CampaignApiController@storeMonthCampaign'  )->name("campaign.store.month"  );
+    Route::post  ('campaign/store/good'        , 'CampaignApiController@storeGoodCampaign'   )->name("campaign.store.good"   );
 });
 
 //published campaigns

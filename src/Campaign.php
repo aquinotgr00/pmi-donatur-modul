@@ -14,7 +14,7 @@ class Campaign extends Model
         'start_campaign', 'finish_campaign','fundraising',
         'publish'
     ];
-    protected $appends  = ['amount_donation'];
+    protected $appends  = ['amount_donation','ranges_donation'];
     /**
      * get amount donations
      *
@@ -105,5 +105,17 @@ class Campaign extends Model
         $campaign->publish = !($campaign->publish);
         $campaign->update();
         return $campaign;
+    }
+    /**
+     * get ranges Donation attribute
+     *
+     * @return void
+     */
+    public function getRangesDonationAttribute()
+    {
+        $start      = (is_null($this->start_campaign))? '' : date_format(date_create($this->start_campaign), "j F Y h:m");
+        $finish     = (is_null($this->finish_campaign))? '' : date_format(date_create($this->finish_campaign), "j F Y h:m");
+        $ranges     = $start.' - '.$finish;
+        return $ranges;
     }
 }
