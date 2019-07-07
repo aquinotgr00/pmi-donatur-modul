@@ -1,5 +1,20 @@
 # pmi-donatur
 
+This package provides API services for 
+* create campaigns
+* get list of campaigns
+* donating money and/or goods
+* donator registration
+* upload proof of donation
+
+## Getting Started
+
+### Prerequisites
+* PMI Admin
+```sh
+composer require bajaklautmalaka/pmi-admin
+```
+* Midtrans Payment Gateway
 
 ## Install
 To include the private Bitbucket repository via Composer you need to add this lines into your composer.json:

@@ -1,6 +1,6 @@
 <?php
 
-namespace BajakLautMalaka\PmiDonatur\Controllers\Api;
+namespace BajakLautMalaka\PmiDonatur\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 
 use BajakLautMalaka\PmiDonatur\Campaign;
-use BajakLautMalaka\PmiDonatur\Requests\StoreCampaignRequest;
-use BajakLautMalaka\PmiDonatur\Requests\UpdateCampaignRequest;
-use BajakLautMalaka\PmiDonatur\Requests\UpdateFinishCampaignRequest;
+use BajakLautMalaka\PmiDonatur\Http\Requests\StoreCampaignRequest;
+use BajakLautMalaka\PmiDonatur\Http\Requests\UpdateCampaignRequest;
+use BajakLautMalaka\PmiDonatur\Http\Requests\UpdateFinishCampaignRequest;
 use Validator;
 
 class CampaignApiController extends Controller

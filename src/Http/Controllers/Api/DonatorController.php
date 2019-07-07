@@ -1,6 +1,6 @@
 <?php
 
-namespace BajakLautMalaka\PmiDonatur\Controllers\Api;
+namespace BajakLautMalaka\PmiDonatur\Http\Controllers\Api;
 
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
@@ -10,9 +10,9 @@ use BajakLautMalaka\PmiDonatur\PasswordReset;
 
 use Illuminate\Support\Carbon;
 
-use \App\User;
-use BajakLautMalaka\PmiDonatur\Requests\StoreUserDonatorRequest;
-use BajakLautMalaka\PmiDonatur\Requests\SigninPostRequest;
+use App\User;
+use BajakLautMalaka\PmiDonatur\Http\Requests\StoreUserDonatorRequest;
+use BajakLautMalaka\PmiDonatur\Http\Requests\SigninPostRequest;
 use Illuminate\Support\Facades\Auth;
 
 class DonatorController extends Controller

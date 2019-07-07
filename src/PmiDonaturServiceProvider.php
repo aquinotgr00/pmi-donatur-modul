@@ -68,7 +68,7 @@ class PmiDonaturServiceProvider extends ServiceProvider
     private function loadRoutes(Router $router): void
     {
         $router->prefix(config('donator.prefix', 'api.donator'))
-               ->namespace('BajakLautMalaka\PmiDonatur\Controllers\Api')
+               ->namespace('BajakLautMalaka\PmiDonatur\Http\Controllers\Api')
                ->middleware(['api'])
                ->group(function () {
                    $this->loadRoutesFrom(__DIR__.'/../routes/api.php');
@@ -82,7 +82,7 @@ class PmiDonaturServiceProvider extends ServiceProvider
      */
     private function loadViews()
     {
-        $path = __DIR__.'/resources/views';
+        $path = __DIR__.'/../resources/views';
         $this->loadViewsFrom($path, 'donator');
 
         if ($this->app->runningInConsole()) {
