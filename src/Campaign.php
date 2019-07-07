@@ -2,7 +2,9 @@
 
 namespace BajakLautMalaka\PmiDonatur;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Campaign extends Model
@@ -14,7 +16,21 @@ class Campaign extends Model
         'start_campaign', 'finish_campaign','fundraising',
         'publish'
     ];
+    
     protected $appends  = ['amount_donation','ranges_donation'];
+    
+    /**
+     * Global Scope - sort by latest
+     */
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::addGlobalScope('order', function (Builder $builder) {
+            $builder->latest();
+        });
+    }
+    
     /**
      * get amount donations
      *
@@ -117,5 +133,10 @@ class Campaign extends Model
         $finish     = (is_null($this->finish_campaign))? '' : date_format(date_create($this->finish_campaign), "j F Y h:m");
         $ranges     = $start.' - '.$finish;
         return $ranges;
+    }
+    
+    public function admin(): BelongsTo
+    {
+        return $this->belongsTo('\BajakLautMalaka\PmiAdmin\Admin');
     }
 }

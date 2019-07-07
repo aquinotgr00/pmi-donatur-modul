@@ -36,14 +36,73 @@ class CampaignApiController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function index(Request $request, Campaign $campaign)
     {
-        $campaign = Campaign::where('publish', true)
-            ->with('getType')
-            ->with('getDonations')
-            ->paginate($this->paginate);
-        return response()->success($campaign);
+        // published or draft
+        $campaign = $this->handlePublishedOrDraft($request, $campaign);
+        
+        // search keyword
+        $campaign = $this->handleSearchKeyword($request, $campaign);
+        
+        // campaign type
+        $campaign = $this->handleCampaignType($request, $campaign);
+        
+        // fundraising or in-kind (default = fundraising)
+        $campaign = $campaign->where('fundraising', $request->input('f',1));
+
+        // sort by 
+        $campaign = $this->handleSort($request, $campaign);
+        
+        return response()->success($campaign->paginate());
     }
+    
+    private function handlePublishedOrDraft(Request $request, $campaign)
+    {
+        if ($request->has('p')) {
+            $campaign = $campaign->where('publish', $request->p);
+        }
+        return $campaign;
+    }
+    
+    private function handleSearchKeyword(Request $request, $campaign)
+    {
+        if ($request->has('s')) {
+            $campaign = $campaign->where(function($query) use($request) {
+                $query->where('title', 'like', '%' . $request->s . '%')
+                    ->orWhere('description', 'like', '%' . $request->s . '%')
+                    ->orWhereRaw("DATE_FORMAT(start_campaign,'%M') like CONCAT('%',?,'%')", $request->s)
+                    ->orWhereRaw("DATE_FORMAT(finish_campaign,'%M') like CONCAT('%',?,'%')", $request->s);
+            });
+        }
+        return $campaign;
+    }
+    
+    private function handleCampaignType(Request $request, $campaign)
+    {
+        if ($request->has('t')) {
+            $campaign = $campaign->where('type_id', $request->t);
+        }
+        else {
+            $campaign = $campaign->where('type_id', '<>', 3);
+        }
+        return $campaign;
+    }
+    
+    private function handleSort(Request $request, $campaign)
+    {
+        if ($request->has('ob')) {
+            // sort direction (default = asc)
+            $sort_direction = 'asc';
+            if($request->has('od')) {
+                if (in_array($request->od, ['asc', 'desc'])) {
+                    $sort_direction = $request->od;
+                }
+            }
+            $campaign = $campaign->orderBy($request->ob, $sort_direction);
+        }
+        return $campaign;
+    }
+
     /**
      * store campaign
      *
@@ -177,35 +236,6 @@ class CampaignApiController extends Controller
         } else {
             return response()->fail($campaign);
         }
-    }
-
-    public function allFilter(Request $request, Campaign $campaign)
-    {
-        $campaign  = $campaign->newQuery();
-        if ($request->has('publish')) {
-            $campaign->where('publish', $request->input('publish'));
-        }
-
-        if ($request->has('keyword')) {
-            $campaign->where('title', 'like', '%' . $request->input('keyword') . '%')
-                ->orWhere('description', 'like', '%' . $request->input('keyword') . '%')
-                ->orWhere('start_campaign', 'like', '%' . $request->input('keyword') . '%')
-                ->orWhere('finish_campaign', 'like', '%' . $request->input('keyword') . '%');
-        }
-
-        if ($request->has('type_id')) {
-            $campaign->where('type_id', $request->input('type_id'));
-        }
-
-        if ($request->has('order') && $request->has('column')) {
-            if (in_array($request->input('order'), ['asc', 'desc'])) {
-                $campaign->orderBy($request->input('column'), $request->input('order'));
-            }
-        }
-
-        $campaign->with('getType')->with('getDonations');
-
-        return response()->success($campaign->get());
     }
 
     public function storeMonthCampaign(StoreMonthCampaignRequest $request)
