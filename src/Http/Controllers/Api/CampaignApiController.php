@@ -8,10 +8,12 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 
 use BajakLautMalaka\PmiDonatur\Campaign;
+
 use BajakLautMalaka\PmiDonatur\Http\Requests\StoreCampaignRequest;
 use BajakLautMalaka\PmiDonatur\Http\Requests\UpdateCampaignRequest;
 use BajakLautMalaka\PmiDonatur\Http\Requests\UpdateFinishCampaignRequest;
-use Validator;
+use BajakLautMalaka\PmiDonatur\Http\Requests\StoreGoodCampaignRequest;
+use BajakLautMalaka\PmiDonatur\Http\Requests\StoreMonthCampaignRequest;
 
 class CampaignApiController extends Controller
 {
@@ -67,8 +69,10 @@ class CampaignApiController extends Controller
         $request->request->add(['image_file_name' => $file_name]);
 
         $campaign = Campaign::create($request->except('_token'));
-        $campaign->getType;
-        $campaign->getDonations;
+        if (isset($campaign->getType)) {
+            $campaign->getType;
+        }
+
         return response()->success($campaign);
     }
     /**
@@ -83,8 +87,15 @@ class CampaignApiController extends Controller
             ->with('getDonations')
             ->find($id);
         if (!is_null($campaign)) {
+            
+            if (isset($campaign->getDonations)) {
+                foreach ($campaign->getDonations->where('status', 2) as $key => $value) {
+                    $value->donator;
+                }
+            }
+
             return response()->success($campaign);
-        }else{
+        } else {
             return response()->fail($campaign);
         }
     }
@@ -163,31 +174,86 @@ class CampaignApiController extends Controller
             $campaign->getType;
             $campaign->getDonations;
             return response()->success($campaign);
-        }else{
+        } else {
             return response()->fail($campaign);
         }
-        
     }
 
-    public function allFilter(Request $request)
+    public function allFilter(Request $request, Campaign $campaign)
     {
-        $campaign  = Campaign::with('getType')
-            ->with('getDonations')
-            ->paginate($this->paginate);
-
+        $campaign  = $campaign->newQuery();
         if ($request->has('publish')) {
-            $campaign = Campaign::getByPublished($request->publish, intval($this->paginate));
+            $campaign->where('publish', $request->input('publish'));
         }
 
         if ($request->has('keyword')) {
-            $campaign = Campaign::getByKeyword($request->keyword, intval($this->paginate));
+            $campaign->where('title', 'like', '%' . $request->input('keyword') . '%')
+                ->orWhere('description', 'like', '%' . $request->input('keyword') . '%')
+                ->orWhere('start_campaign', 'like', '%' . $request->input('keyword') . '%')
+                ->orWhere('finish_campaign', 'like', '%' . $request->input('keyword') . '%');
         }
 
         if ($request->has('type_id')) {
-            $campaign  = Campaign::where('type_id', $request->type_id)
-                ->with('getType')
-                ->with('getDonations')
-                ->paginate($this->paginate);
+            $campaign->where('type_id', $request->input('type_id'));
+        }
+
+        if ($request->has('order') && $request->has('column')) {
+            if (in_array($request->input('order'), ['asc', 'desc'])) {
+                $campaign->orderBy($request->input('column'), $request->input('order'));
+            }
+        }
+
+        $campaign->with('getType')->with('getDonations');
+
+        return response()->success($campaign->get());
+    }
+
+    public function storeMonthCampaign(StoreMonthCampaignRequest $request)
+    {
+        if (isset($request->user()->id)) {
+            $request->request->add(['admin_id' => $request->user()->id]);
+        }
+
+        $image      = $request->file('image_file');
+        $extension  = $image->getClientOriginalExtension();
+        $file_name  = $image->getFilename() . '.' . $extension;
+
+        Storage::disk('public')->put($file_name,  File::get($image));
+
+        $image_url = url('storage/' . $file_name);
+
+
+        $request->request->add(['image' => $image_url]);
+        $request->request->add(['image_file_name' => $file_name]);
+
+        $campaign = Campaign::create($request->except('_token'));
+        if (isset($campaign->getType)) {
+            $campaign->getType;
+        }
+        return response()->success($campaign);
+    }
+
+    public function storeGoodCampaign(StoreGoodCampaignRequest $request)
+    {
+        if (isset($request->user()->id)) {
+            $request->request->add(['admin_id' => $request->user()->id]);
+        }
+
+        $image      = $request->file('image_file');
+        $extension  = $image->getClientOriginalExtension();
+        $file_name  = $image->getFilename() . '.' . $extension;
+
+        Storage::disk('public')->put($file_name,  File::get($image));
+
+        $image_url = url('storage/' . $file_name);
+
+
+        $request->request->add(['image' => $image_url]);
+        $request->request->add(['image_file_name' => $file_name]);
+
+        $campaign = Campaign::create($request->except('_token'));
+        if (isset($campaign->getType)) {
+            $campaign->getType;
         }
         return response()->success($campaign);
     }

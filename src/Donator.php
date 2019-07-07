@@ -8,6 +8,9 @@ use BajakLautMalaka\PmiDonatur\Jobs\SendEmailRegistration;
 use BajakLautMalaka\PmiDonatur\Jobs\SendEmailDonatorResetPassword;
 use BajakLautMalaka\PmiDonatur\Jobs\SendEmailSuccess;
 
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
+
 class Donator extends Model
 {
     use Notifiable;
@@ -63,6 +66,21 @@ class Donator extends Model
         if (class_exists('Donation')) {
             return $this->hasMany('Donation');
         }
+    }
+
+    public function handleDonatorPicture($image)
+    {
+        $image_url = null;
+        if ($image) {
+            $extension  = $image->getClientOriginalExtension();
+            $file_name  = $image->getFilename() . '.' . $extension;
+
+            Storage::disk('donator-picture')->put($file_name,  File::get($image));
+
+            $image_url = url('storage/' . $file_name);
+        }
+
+        return $image_url;
     }
     
     /**
