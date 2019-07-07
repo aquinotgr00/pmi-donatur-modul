@@ -38,7 +38,7 @@ class DonatorEmailRegistration extends Mailable
     {
         return $this->view('donator::mail-template')
                     ->with([
-                        'access_token' => $this->content
+                        'content' => $this->content
                     ]);
     }
 }

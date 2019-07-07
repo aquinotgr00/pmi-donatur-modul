@@ -15,7 +15,7 @@ use BajakLautMalaka\PmiDonatur\Requests\StoreUserDonatorRequest;
 use BajakLautMalaka\PmiDonatur\Requests\SigninPostRequest;
 use Illuminate\Support\Facades\Auth;
 
-class DonatorController extends Controller
+class DonatorApiController extends Controller
 {
     /**
      * Create a new parameter.
@@ -74,13 +74,18 @@ class DonatorController extends Controller
             'password' => bcrypt($request->password)
         ]);
 
+        // handle image
+        $image = $this->donators->handleDonatorPicture($request->file('image'));
+        $request->merge([
+            'image' => $image
+        ]);
+
         // TODO: add custom user fields to config so that anyone could adjust
-        // TODO: handle user uploaded image
         $user = $this->users->create($request->only(['name', 'email', 'password']));
         $token = $user->createToken('Personal Access Token');
         
         // add user id to request
-        $request->request->add([
+        $request->merge([
             'user_id' => $user->id
         ]);
 
@@ -90,7 +95,7 @@ class DonatorController extends Controller
         // send email and token
         $data = [
             'email'   => $request->email,
-            'content' => $request->url_action."/".$token->accessToken
+            'content' => 'Thanks for joining us.'
         ];
         $this->donators->sendEmailAndToken($data);
         
@@ -102,7 +107,7 @@ class DonatorController extends Controller
                                 )->toDateTimeString()
         ];
 
-        return response()->json($response, 200);
+        return response()->success($response);
     }
 
     /**
@@ -115,7 +120,7 @@ class DonatorController extends Controller
     public function signin(SigninPostRequest $request)
     {
         if (!Auth::attempt($request->only(['email', 'password'])))
-            return response()->json([ "message" => "Account does not exist" ], 401);
+            return response()->fail([ "message" => "Account does not exist" ], 401);
 
         $user = $request->user();
         $tokenResult = $user->createToken('Personal Access Token');
@@ -133,7 +138,7 @@ class DonatorController extends Controller
                                 )->toDateTimeString()
         ];
 
-        return response()->json($response, 200);
+        return response()->success($response);
     }
 
     /**
@@ -154,26 +159,26 @@ class DonatorController extends Controller
         $response = [
             'message' => 'Email not found'
         ];
-        $status = 404;
 
         $donator = $this->users->where('email', $request->email)->first();
-        if (!is_null($donator)) {
-            $token = sha1(Carbon::now()->timestamp."".$donator->id);
-            $this->passwordResets->create(['token' => $token, 'email' => $request->email]);
-
-            $data = [
-                'email'   => $request->email,
-                'content' => $request->url_action."/".$token
-            ];
-            $this->donators->sendEmailAndTokenReset($data);
-
-            $response = [
-                'reset_password_token' => $token
-            ];
-            $status = 200;
+        if (!$donator) {
+            return response()->fail($response);
         }
+
+        $token = sha1(Carbon::now()->timestamp."".$donator->id);
+        $this->passwordResets->create(['token' => $token, 'email' => $request->email]);
+
+        $data = [
+            'email'   => $request->email,
+            'content' => $request->url_action."/".$token
+        ];
+        $this->donators->sendEmailAndTokenReset($data);
+
+        $response = [
+            'reset_password_token' => $token
+        ];
         
-        return response()->json($response, $status);
+        return response()->success($response);
     }
 
     /**
@@ -192,27 +197,30 @@ class DonatorController extends Controller
         ]);
 
         $response = ["message" => "Email / token not valid"];
-        $status = 400;
 
         $check = $this->passwordResets->where('token', $request->token)->first();
-        if (!is_null($check)) {
-            $user = $this->users->where('email', $check->email)->first();
-            $this->users->where('email', $check->email)->update(['password' => bcrypt($request->password)]);
-            $token = $user->createToken('New Personal Access Token');
-            
-            $data = [
-                'email' => $check->email,
-                'content' => 'Password kamu berhasil di ubah.'
-            ];
-            $this->donators->sendEmailSuccess($data);
-
-            $response = [
-                "message"      => "Password sucessfully changed.",
-                "access_token" => $token->accessToken
-            ];
-            $status = 200;
+        if (!$check) {
+            return response()->fail($response);
         }
-        return response()->json($response, $status);
+
+        $user = $this->users->where('email', $check->email)->first();
+        // TODO: check for old password.
+        $this->users->where('email', $check->email)->update(['password' => bcrypt($request->password)]);
+        // TODO: delete password reset token after successfully changed password.
+        $token = $user->createToken('New Personal Access Token');
+        
+        $data = [
+            'email' => $check->email,
+            'content' => 'Password kamu berhasil di ubah.'
+        ];
+        $this->donators->sendEmailSuccess($data);
+
+        $response = [
+            "message"      => "Password sucessfully changed.",
+            "access_token" => $token->accessToken
+        ];
+
+        return response()->success($response);
     }
 
     /**
@@ -226,15 +234,16 @@ class DonatorController extends Controller
     {
         // TODO: add auth guard
         // $this->guard('auth:api');
+        $response = [
+            'message' => 'Donator not found.'
+        ];
 
         $donator = $this->donators->find($id);
+        if (!$donator) { return response()->fail($response); }
         $donator->update($request->all());
         
-        $response = [
-            "message" => "Your data sucessfully changed.",
-        ];
-        $status = 200;
+        $response['message'] = 'Your data sucessfully changed.';
 
-        return response()->json($response, $status);
+        return response()->success($response);
     }
 }

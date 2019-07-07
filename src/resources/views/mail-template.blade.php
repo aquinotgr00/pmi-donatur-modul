@@ -1,5 +1,4 @@
 Welcome,
 <br />
-Thank you to join us.
+{{$content}}
 <br />
-here's your token: {{$access_token}}

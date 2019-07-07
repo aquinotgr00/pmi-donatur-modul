@@ -21,7 +21,7 @@ class DonatorUnitTest extends TestCase
     /** @test */
     public function testPostSignupWithoutData()
     {
-        $response = $this->json('POST', '/api/donators/signup');
+        $response = $this->postJson('/api/donators/signup');
         $response->assertStatus(422);
     }
 
@@ -32,19 +32,20 @@ class DonatorUnitTest extends TestCase
      */
     public function testSignupDonatorWithProperData()
     {
-        Storage::fake('public');
-        $image = UploadedFile::fake()->image('donator_image.jpg', 1, 1);
-        $response = $this->withHeaders([
-            'Accept' => 'application/json'
-        ])->postJson('/api/donators/signup', [
-            'image' => 'donator_image.jpg',
-            'name' => $this->faker->unique()->name,
-            'email' => $this->faker->unique()->email,
-            'phone' => $this->faker->shuffle('0123456789'),
-            'password' => 'open1234',
+        Storage::fake('donator-picture');
+        $image = UploadedFile::fake()->image('donator_avatar.jpg', 1, 1);
+        $response = $this->postJson('/api/donators/signup', [
+            'image'                 => $image,
+            'name'                  => $this->faker->unique()->name,
+            'email'                 => $this->faker->unique()->email,
+            'phone'                 => $this->faker->shuffle('0123456789'),
+            'password'              => 'open1234',
             'password_confirmation' => 'open1234',
-            'url_action' => 'dummy.frontend'
+            'url_action'            => 'dummy.frontend'
         ]);
+
+        // Assert the file was stored
+        Storage::disk('donator-picture')->assertExists('donator_avatar.jpg');
         
         $response
                 ->assertStatus(200)
@@ -57,7 +58,7 @@ class DonatorUnitTest extends TestCase
     public function testSigninWithIncorectCredentials()
     {
         $this->postJson('/api/donators/signin', [
-            'email' => 'somerandom@mail.com',
+            'email'    => 'somerandom@mail.com',
             'password' => 'open1234'
         ])->assertStatus(401)
         ->assertJson([
@@ -70,12 +71,12 @@ class DonatorUnitTest extends TestCase
     {
         $email = $this->faker->unique()->email;
         factory(User::class)->create([
-            'email' => $email,
+            'email'    => $email,
             'password' => bcrypt('open1234')
         ]);
 
         $response = $this->postJson('/api/donators/signin', [
-            'email' => $email,
+            'email'    => $email,
             'password' => 'open1234'
         ]);
         $response->assertStatus(200)
@@ -88,7 +89,7 @@ class DonatorUnitTest extends TestCase
     public function testRequestForgotPasswordTokenWithIncorectEmail()
     {
         $this->postJson('/api/donators/password/reset', [
-            'email' => 'randomE@mail.com',
+            'email'      => 'randomE@mail.com',
             'url_action' => 'testing'
         ])->assertJson([
             'message' => 'Email not found'
@@ -100,11 +101,11 @@ class DonatorUnitTest extends TestCase
     {
         $email = $this->faker->unique()->email;
         factory(User::class)->create([
-            'email' => $email,
+            'email'    => $email,
             'password' => bcrypt('open1234')
         ]);
         $response = $this->postJson('/api/donators/password/reset', [
-            'email' => $email,
+            'email'      => $email,
             'url_action' => 'testing'
         ]);
         
@@ -118,17 +119,17 @@ class DonatorUnitTest extends TestCase
     {
         $email = $this->faker->unique()->email;
         factory(User::class)->create([
-            'email' => $email,
+            'email'    => $email,
             'password' => bcrypt('open1234')
         ]);
         $response = $this->postJson('/api/donators/password/reset', [
-            'email' => $email,
+            'email'      => $email,
             'url_action' => 'testing'
         ]);
         $token = json_decode($response->getContent())->reset_password_token;
         $passwordChanged = $this->postJson('/api/donators/password/change', [
-            'token' => $token,
-            'password' => 'open1234',
+            'token'                 => $token,
+            'password'              => 'open1234',
             'password_confirmation' => 'open1234'
         ]);
         
