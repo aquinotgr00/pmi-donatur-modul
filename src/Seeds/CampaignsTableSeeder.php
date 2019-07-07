@@ -2,6 +2,7 @@
 namespace BajakLautMalaka\PmiDonatur\Seeds;
 
 use Illuminate\Database\Seeder;
+use BajakLautMalaka\PmiDonatur\Campaign;
 
 class CampaignsTableSeeder extends Seeder
 {
@@ -12,6 +13,6 @@ class CampaignsTableSeeder extends Seeder
      */
     public function run()
     {
-        //
+        factory(Campaign::class, 75)->create();
     }
 }
