@@ -15,7 +15,7 @@ use BajakLautMalaka\PmiDonatur\Requests\StoreUserDonatorRequest;
 use BajakLautMalaka\PmiDonatur\Requests\SigninPostRequest;
 use Illuminate\Support\Facades\Auth;
 
-class DonatorController extends Controller
+class DonatorApiController extends Controller
 {
     /**
      * Create a new parameter.
