@@ -14,7 +14,8 @@ class Donation extends Model
     protected $fillable = [
         'name', 'email', 'phone', 'campaign_id',
         'donator_id', 'amount', 'pick_method',
-        'payment_method', 'status', 'guest', 'anonym'
+        'payment_method', 'status', 'guest', 'anonym',
+        'image', 'category'
     ];
 
     /**

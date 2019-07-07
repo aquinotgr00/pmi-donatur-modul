@@ -28,7 +28,7 @@ class StoreUserDonatorRequest extends FormRequest
             'email'       => 'required|string|email|unique:users',
             'password'    => 'required|string|confirmed',
             'phone'       => 'required|string|unique:donators',
-            'image'       => 'string',
+            'image'       => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'dob'         => 'string',
             'address'     => 'string',
             'province'    => 'string',
