@@ -14,7 +14,7 @@ Route::group(['prefix' => 'donations', 'as' => 'donations.'], function () {
     Route::post('create', 'DonationApiController@create')->name('create');
 });
 
-Route::group(['middleware' => 'auth:admin'], function () {
+Route::group(['prefix'=>config('admin.prefix', 'admin'),'middleware' => 'auth:admin'], function () {
     Route::get   ('campaigns/all/filter'       , 'CampaignApiController@allFilter'           )->name("campaigns.all.filter"  );
     Route::post  ('campaign'                   , 'CampaignApiController@store'               )->name("campaign.store"        );
     Route::get   ('campaigns/{id}'             , 'CampaignApiController@show'                )->name("campaigns.show"        );

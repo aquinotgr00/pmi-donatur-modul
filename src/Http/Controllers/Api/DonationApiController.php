@@ -1,6 +1,6 @@
 <?php
 
-namespace BajakLautMalaka\PmiDonatur\Controllers\Api;
+namespace BajakLautMalaka\PmiDonatur\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use BajakLautMalaka\PmiDonatur\Requests\StoreDonationRequest;
