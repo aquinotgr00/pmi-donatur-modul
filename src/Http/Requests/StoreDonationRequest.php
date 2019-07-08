@@ -1,6 +1,6 @@
 <?php
 
-namespace BajakLautMalaka\PmiDonatur\Requests;
+namespace BajakLautMalaka\PmiDonatur\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
