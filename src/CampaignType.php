@@ -3,6 +3,7 @@
 namespace BajakLautMalaka\PmiDonatur;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CampaignType extends Model
 {
@@ -15,9 +16,9 @@ class CampaignType extends Model
     /**
      * get all campaign by type
      *
-     * @return hasMany
+     * @return HasMany
      */
-    public function getCampaign(): hasMany
+    public function campaigns(): HasMany
     {
         return $this->hasMany('\BajakLautMalaka\PmiDonatur\Campaign','type_id','id');
     }

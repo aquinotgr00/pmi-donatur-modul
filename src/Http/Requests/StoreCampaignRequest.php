@@ -3,6 +3,7 @@
 namespace BajakLautMalaka\PmiDonatur\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreCampaignRequest extends FormRequest
 {
@@ -28,7 +29,7 @@ class StoreCampaignRequest extends FormRequest
             'title' => 'required|unique:campaigns',
             'image_file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'description' => 'required',
-            'amount_goal' => 'required|numeric',
+            'amount_goal' => Rule::requiredIf($this->input('fundraising') == 1),
             'start_campaign' => 'date',
             'finish_campaign' => 'date',
             'fundraising' => 'required|boolean',

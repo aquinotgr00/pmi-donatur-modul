@@ -16,15 +16,13 @@ Route::group(['prefix' => 'donations', 'as' => 'donations.'], function () {
 });
 
 Route::group(['prefix'=>config('admin.prefix', 'admin'),'middleware' => 'auth:admin'], function () {
-    Route::get   ('campaigns/all/filter'       , 'CampaignApiController@allFilter'           )->name("campaigns.all.filter"  );
+    Route::get('campaigns', 'CampaignApiController@index')->name("campaigns.index");
     Route::post  ('campaign'                   , 'CampaignApiController@store'               )->name("campaign.store"        );
     Route::get   ('campaigns/{id}'             , 'CampaignApiController@show'                )->name("campaigns.show"        );
     Route::put   ('campaigns/{id}'             , 'CampaignApiController@update'              )->name("campaigns.update"      );
     Route::delete('campaigns/{id}'             , 'CampaignApiController@delete'              )->name("campaigns.delete"      );
     Route::post  ('campaign/update/finish/{id}', 'CampaignApiController@updateFinishCampaign')->name("campaign.update.finish");
-    Route::post  ('campaign/store/month'       , 'CampaignApiController@storeMonthCampaign'  )->name("campaign.store.month"  );
-    Route::post  ('campaign/store/good'        , 'CampaignApiController@storeGoodCampaign'   )->name("campaign.store.good"   );
 });
 
-//published campaigns
-Route::get('campaigns', 'CampaignApiController@index')->name("campaigns.index");
+Route::get('app/campaigns', 'CampaignApiController@index')->name("campaigns.app.index");
+Route::get('app/campaigns/{id}', 'CampaignApiController@show')->name("campaigns.app.show");
