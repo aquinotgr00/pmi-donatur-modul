@@ -30,7 +30,7 @@ $factory->define(Campaign::class, function (Faker $faker) {
     return [
         'type_id'=>$campaign_type,
         'title'=>$faker->sentence,
-        'image'=>$faker->sentence,
+        'image'=>$faker->imageUrl(640,480),
         'description'=>$faker->text,
         'amount_goal'=>$amount_goal,
         'amount_real'=>$amount_real,

@@ -16,7 +16,7 @@ class CampaignUnitTest extends TestCase
 
     public function testListCampaign()
     {
-        $response = $this->json('GET', '/api/campaigns');
+        $response = $this->json('GET', '/api/app/campaigns');
         $response->assertStatus(200);
         $response->assertSee('data');
     }
@@ -32,7 +32,7 @@ class CampaignUnitTest extends TestCase
             'publish'=> 1,
         ];
 
-        $response = $this->json('POST', '/api/campaign', $data);
+        $response = $this->json('POST', '/api/admin/campaign', $data);
         $response->assertStatus(200);
         $response->assertSee('image_file');
     }
@@ -40,7 +40,7 @@ class CampaignUnitTest extends TestCase
     public function testCreateCampaignCompleted()
     {
         Storage::fake('public');
-        $this->postJson('api/campaign', [
+        $this->postJson('api/admin/campaign', [
             'image_file' => $file = UploadedFile::fake()->image('image.jpg', 1, 1),
             'fundraising' => 1,
             'type_id' => 1,
@@ -63,7 +63,7 @@ class CampaignUnitTest extends TestCase
             'amount_goal' => 10000,
             'publish'=> 1,
         ]);
-        $this->postJson('api/campaigns/'.$campaign->id, [
+        $this->postJson('api/admin/campaigns/'.$campaign->id, [
             'title' => 'cek update',
             'description' => 'lorem ipsum',
             'amount_goal' => 10000,
@@ -83,7 +83,7 @@ class CampaignUnitTest extends TestCase
             'amount_goal' => 10000,
             'publish'=> 1,
         ]);
-        $this->getJson('api/campaigns/'.$campaign->id)->assertStatus(200)
+        $this->getJson('api/app/campaigns/'.$campaign->id)->assertStatus(200)
             ->assertJsonStructure([
                 'data' => [
                     'id',

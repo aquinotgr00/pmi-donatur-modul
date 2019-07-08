@@ -22,14 +22,17 @@ class CreateCampaignTypesTable extends Migration
 
         $types = [
             [
+                'id' => 1,
                 'name' => 'Umum',
                 'description' => ''
             ],
             [
+                'id' => 2,
                 'name' => 'Khusus',
                 'description' => ''
             ],
             [
+                'id' => 3,
                 'name' => 'Bulan Dana',
                 'description' => ''
             ]

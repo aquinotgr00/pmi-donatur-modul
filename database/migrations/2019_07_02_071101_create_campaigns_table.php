@@ -20,8 +20,8 @@ class CreateCampaignsTable extends Migration
             $table->string('title')->unique();
             $table->string('image');
             $table->text('description');
-            $table->bigInteger('amount_goal')->default(0);
-            $table->bigInteger('amount_real')->default(0);
+            $table->bigInteger('amount_goal')->nullable();
+            $table->bigInteger('amount_real')->nullable();
             $table->date('start_campaign')->nullable();
             $table->date('finish_campaign')->nullable();
             $table->boolean('fundraising')->default(false);
