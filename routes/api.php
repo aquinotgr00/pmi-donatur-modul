@@ -13,6 +13,7 @@ Route::group(['prefix' => 'donators', 'as' => 'auth.donators.'], function () {
 // DONATION ROUTES
 Route::group(['prefix' => 'donations', 'as' => 'donations.'], function () {
     Route::post('create', 'DonationApiController@create')->name('create');
+    Route::post('proof-upload', 'DonationApiController@proofUpload')->name('proof-upload');
 });
 
 Route::group(['prefix'=>config('admin.prefix', 'admin'),'middleware' => 'auth:admin'], function () {

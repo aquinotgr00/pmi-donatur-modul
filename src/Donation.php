@@ -4,6 +4,11 @@ namespace BajakLautMalaka\PmiDonatur;
 
 use Illuminate\Database\Eloquent\Model;
 
+use BajakLautMalaka\PmiDonatur\Jobs\SendEmailStatus;
+
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
+
 class Donation extends Model
 {
     /**
@@ -15,7 +20,7 @@ class Donation extends Model
         'name', 'email', 'phone', 'campaign_id',
         'donator_id', 'amount', 'pick_method',
         'payment_method', 'status', 'guest', 'anonym',
-        'image', 'category'
+        'image', 'category', 'admin_id'
     ];
 
     /**
@@ -43,5 +48,32 @@ class Donation extends Model
         if (class_exists('DonationItem')) {
             return $this->hasMany('DonationItem');
         }
+    }
+    
+    /**
+     * Send email to inform donator/user about their donation status.
+     *
+     * @param  array  $data
+     *
+     * @return void
+     */
+    public function sendEmailStatus($email, $data)
+    {
+        dispatch(new SendEmailStatus($email, $data));
+    }
+    
+    public function handleDonationImage($image)
+    {
+        $image_url = null;
+        if ($image) {
+            $extension  = $image->getClientOriginalExtension();
+            $file_name  = $image->getFilename() . '.' . $extension;
+
+            Storage::disk('public')->put('donation-image/'.$file_name, File::get($image));
+
+            $image_url = url('donation-image/' . $file_name);
+        }
+
+        return $image_url;
     }
 }
