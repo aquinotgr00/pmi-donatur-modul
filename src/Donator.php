@@ -75,9 +75,9 @@ class Donator extends Model
             $extension  = $image->getClientOriginalExtension();
             $file_name  = $image->getFilename() . '.' . $extension;
 
-            Storage::disk('donator-picture')->put($file_name,  File::get($image));
+            Storage::disk('public')->put('donator-picture/'.$file_name, File::get($image));
 
-            $image_url = url('storage/' . $file_name);
+            $image_url = url('donator-picture/' . $file_name);
         }
 
         return $image_url;
