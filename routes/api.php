@@ -2,11 +2,12 @@
 
 // DONATOR ROUTES 
 Route::group(['prefix' => 'donators', 'as' => 'auth.donators.'], function () {
-    Route::post('signin'             , 'DonatorApiController@signin'                   )->name("signin"               );
-    Route::post('signup'             , 'DonatorApiController@signup'                   )->name("signup"               );
-    Route::post('password/reset'     , 'DonatorApiController@createTokenForgotPassword')->name("token.password.reset" );
-    Route::post('password/change'    , 'DonatorApiController@changePassword'           )->name("token.password.change");
-    Route::post('update-profile/{id}', 'DonatorApiController@updateDonatorProfile'     )->name('update.profile'       );
+    Route::post('signin'              , 'DonatorApiController@signin'                    )->name("signin"                );
+    Route::post('signup'              , 'DonatorApiController@signup'                    )->name("signup"                );
+    Route::post('password/reset'      , 'DonatorApiController@createTokenForgotPassword' )->name("token.password.reset"  );
+    Route::post('password/change'     , 'DonatorApiController@changePassword'            )->name("token.password.change" );
+    Route::get ('profile'             , 'DonatorApiController@profile'                   )->name('profile'               );
+    Route::post('update-profile/'     , 'DonatorApiController@updateDonatorProfile'      )->name('update.profile'        );
 });
 
 // DONATION ROUTES

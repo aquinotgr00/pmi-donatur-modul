@@ -58,7 +58,9 @@ class DonatorApiController extends Controller
     {
         $this->donators = $donatorModel;
         $this->passwordResets = $passwordResets;
-        $this->users    = $users;
+        $this->users = $users;
+
+        $this->middleware('auth:api')->only(['profile', 'updateDonatorProfile']);
     }
 
     /**
@@ -160,12 +162,11 @@ class DonatorApiController extends Controller
             'message' => 'Email not found'
         ];
 
-        $donator = $this->users->where('email', $request->email)->first();
-        if (!$donator) {
+        $user = $this->users->where('email', $request->email)->first();
+        if (!$user)
             return response()->fail($response);
-        }
 
-        $token = sha1(Carbon::now()->timestamp."".$donator->id);
+        $token = sha1(Carbon::now()->timestamp."".$user->id);
         $this->passwordResets->create(['token' => $token, 'email' => $request->email]);
 
         $data = [
@@ -198,19 +199,17 @@ class DonatorApiController extends Controller
 
         $response = ["message" => "Email / token not valid"];
 
-        $check = $this->passwordResets->where('token', $request->token)->first();
-        if (!$check) {
+        $tokenReset = $this->passwordResets->where('token', $request->token)->first();
+        if (!$tokenReset && Carbon::parse($tokenReset->updated_at)->addMinutes(720)->isPast()) {
             return response()->fail($response);
         }
 
-        $user = $this->users->where('email', $check->email)->first();
-        // TODO: check for old password.
-        $this->users->where('email', $check->email)->update(['password' => bcrypt($request->password)]);
-        // TODO: delete password reset token after successfully changed password.
+        $user = $this->users->where('email', $tokenReset->email)->first();
+        $this->users->where('email', $tokenReset->email)->update(['password' => bcrypt($request->password)]);
         $token = $user->createToken('New Personal Access Token');
         
         $data = [
-            'email' => $check->email,
+            'email'   => $tokenReset->email,
             'content' => 'Password kamu berhasil di ubah.'
         ];
         $this->donators->sendEmailSuccess($data);
@@ -223,23 +222,41 @@ class DonatorApiController extends Controller
         return response()->success($response);
     }
 
+    public function profile()
+    {
+        $user = auth()->user();
+        $donator = $this->donators->where('user_id', $user->id)->first();
+        if (!$donator)
+            return response()->fail(['message' => 'Donator not found.']);
+        return response()->success($donator);
+    }
+
     /**
      * Edit the donator data
      *
      * @param Request $request
-     * @param integer $id
      * @return mixed
      */
-    public function updateDonatorProfile(Request $request, $id)
+    public function updateDonatorProfile(Request $request)
     {
-        // TODO: add auth guard
-        // $this->guard('auth:api');
         $response = [
             'message' => 'Donator not found.'
         ];
 
-        $donator = $this->donators->find($id);
-        if (!$donator) { return response()->fail($response); }
+        // handle image
+        $image = $this->donators->handleDonatorPicture($request->file('image'));
+        $request = new Request($request->all());
+        $request->merge([
+            'image' => $image
+        ]);
+
+        $user = auth()->user();
+
+        $donator = $this->donators->where('user_id', $user->id)->first();
+
+        if (!$donator)
+            return response()->fail($response);
+
         $donator->update($request->all());
         
         $response['message'] = 'Your data sucessfully changed.';
