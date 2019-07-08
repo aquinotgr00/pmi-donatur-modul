@@ -83,9 +83,12 @@ class DonationApiController extends Controller
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
 
-        $image = $this->donations->handleDonationImage($request->file('image'));
-
         $donation = $this->donations->find($request->id);
+
+        if (!donation)
+            return response()->fail(['message' => 'Donation not found.']);
+
+        $image = $this->donations->handleDonationImage($request->file('image'));
 
         $data = [
             'status'  => 'Waiting',
