@@ -2,18 +2,17 @@
 
 namespace BajakLautMalaka\PmiDonatur\Http\Controllers\Api;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
 
 use BajakLautMalaka\PmiDonatur\Donator;
 use BajakLautMalaka\PmiDonatur\PasswordReset;
-
-use Illuminate\Support\Carbon;
+use BajakLautMalaka\PmiDonatur\Http\Requests\SigninPostRequest;
+use BajakLautMalaka\PmiDonatur\Http\Requests\StoreUserDonatorRequest;
 
 use \App\User;
-use BajakLautMalaka\PmiDonatur\Http\Requests\StoreUserDonatorRequest;
-use BajakLautMalaka\PmiDonatur\Http\Requests\SigninPostRequest;
-use Illuminate\Support\Facades\Auth;
 
 class DonatorApiController extends Controller
 {
@@ -151,7 +150,7 @@ class DonatorApiController extends Controller
      * @return mixed
      *
      */
-    public function createTokenForgotPassword(Request $request)
+    public function resetPassword(Request $request)
     {
         $request->validate([
             'email'      => 'required|string|email',
@@ -237,7 +236,7 @@ class DonatorApiController extends Controller
      * @param Request $request
      * @return mixed
      */
-    public function updateDonatorProfile(Request $request)
+    public function updateProfile(Request $request)
     {
         $response = [
             'message' => 'Donator not found.'
