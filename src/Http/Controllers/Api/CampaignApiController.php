@@ -12,8 +12,6 @@ use BajakLautMalaka\PmiDonatur\Campaign;
 use BajakLautMalaka\PmiDonatur\Http\Requests\StoreCampaignRequest;
 use BajakLautMalaka\PmiDonatur\Http\Requests\UpdateCampaignRequest;
 use BajakLautMalaka\PmiDonatur\Http\Requests\UpdateFinishCampaignRequest;
-use BajakLautMalaka\PmiDonatur\Http\Requests\StoreGoodCampaignRequest;
-use BajakLautMalaka\PmiDonatur\Http\Requests\StoreMonthCampaignRequest;
 
 class CampaignApiController extends Controller
 {
@@ -40,34 +38,38 @@ class CampaignApiController extends Controller
     {
         // published or draft
         $campaign = $this->handlePublishedOrDraft($request, $campaign);
-        
+
         // search keyword
         $campaign = $this->handleSearchKeyword($request, $campaign);
-        
+
         // campaign type
         $campaign = $this->handleCampaignType($request, $campaign);
-        
+
         // fundraising or in-kind (default = fundraising)
-        $campaign = $campaign->where('fundraising', $request->input('f',1));
+        $campaign = $campaign->where('fundraising', $request->input('f', 1));
 
         // sort by 
         $campaign = $this->handleSort($request, $campaign);
-        
+
         return response()->success($campaign->paginate());
     }
-    
+
     private function handlePublishedOrDraft(Request $request, $campaign)
     {
+        $campaign = $campaign->where('publish', 1);
         if ($request->has('p')) {
-            $campaign = $campaign->where('publish', $request->p);
+            if (isset($request->user()->id)) {
+                // only admin can request publish or not
+                $campaign = $campaign->where('publish', $request->p);
+            }
         }
         return $campaign;
     }
-    
+
     private function handleSearchKeyword(Request $request, $campaign)
     {
         if ($request->has('s')) {
-            $campaign = $campaign->where(function($query) use($request) {
+            $campaign = $campaign->where(function ($query) use ($request) {
                 $query->where('title', 'like', '%' . $request->s . '%')
                     ->orWhere('description', 'like', '%' . $request->s . '%')
                     ->orWhereRaw("DATE_FORMAT(start_campaign,'%M') like CONCAT('%',?,'%')", $request->s)
@@ -76,24 +78,23 @@ class CampaignApiController extends Controller
         }
         return $campaign;
     }
-    
+
     private function handleCampaignType(Request $request, $campaign)
     {
         if ($request->has('t')) {
             $campaign = $campaign->where('type_id', $request->t);
-        }
-        else {
+        } else {
             $campaign = $campaign->where('type_id', '<>', 3);
         }
         return $campaign;
     }
-    
+
     private function handleSort(Request $request, $campaign)
     {
         if ($request->has('ob')) {
             // sort direction (default = asc)
             $sort_direction = 'asc';
-            if($request->has('od')) {
+            if ($request->has('od')) {
                 if (in_array($request->od, ['asc', 'desc'])) {
                     $sort_direction = $request->od;
                 }
@@ -146,7 +147,7 @@ class CampaignApiController extends Controller
             ->with('getDonations')
             ->find($id);
         if (!is_null($campaign)) {
-            
+
             if (isset($campaign->getDonations)) {
                 foreach ($campaign->getDonations->where('status', 2) as $key => $value) {
                     $value->donator;
@@ -236,55 +237,5 @@ class CampaignApiController extends Controller
         } else {
             return response()->fail($campaign);
         }
-    }
-
-    public function storeMonthCampaign(StoreMonthCampaignRequest $request)
-    {
-        if (isset($request->user()->id)) {
-            $request->request->add(['admin_id' => $request->user()->id]);
-        }
-
-        $image      = $request->file('image_file');
-        $extension  = $image->getClientOriginalExtension();
-        $file_name  = $image->getFilename() . '.' . $extension;
-
-        Storage::disk('public')->put($file_name,  File::get($image));
-
-        $image_url = url('storage/' . $file_name);
-
-
-        $request->request->add(['image' => $image_url]);
-        $request->request->add(['image_file_name' => $file_name]);
-
-        $campaign = Campaign::create($request->except('_token'));
-        if (isset($campaign->getType)) {
-            $campaign->getType;
-        }
-        return response()->success($campaign);
-    }
-
-    public function storeGoodCampaign(StoreGoodCampaignRequest $request)
-    {
-        if (isset($request->user()->id)) {
-            $request->request->add(['admin_id' => $request->user()->id]);
-        }
-
-        $image      = $request->file('image_file');
-        $extension  = $image->getClientOriginalExtension();
-        $file_name  = $image->getFilename() . '.' . $extension;
-
-        Storage::disk('public')->put($file_name,  File::get($image));
-
-        $image_url = url('storage/' . $file_name);
-
-
-        $request->request->add(['image' => $image_url]);
-        $request->request->add(['image_file_name' => $file_name]);
-
-        $campaign = Campaign::create($request->except('_token'));
-        if (isset($campaign->getType)) {
-            $campaign->getType;
-        }
-        return response()->success($campaign);
     }
 }

@@ -21,8 +21,7 @@ Route::group(['prefix'=>config('admin.prefix', 'admin'),'middleware' => 'auth:ad
     Route::put   ('campaigns/{id}'             , 'CampaignApiController@update'              )->name("campaigns.update"      );
     Route::delete('campaigns/{id}'             , 'CampaignApiController@delete'              )->name("campaigns.delete"      );
     Route::post  ('campaign/update/finish/{id}', 'CampaignApiController@updateFinishCampaign')->name("campaign.update.finish");
-    Route::post  ('campaign/store/month'       , 'CampaignApiController@storeMonthCampaign'  )->name("campaign.store.month"  );
-    Route::post  ('campaign/store/good'        , 'CampaignApiController@storeGoodCampaign'   )->name("campaign.store.good"   );
 });
 
-Route::get('campaigns', 'CampaignApiController@index')->name("campaigns.index");
+Route::get('app/campaigns', 'CampaignApiController@index')->name("campaigns.app.index");
+Route::get('app/campaigns/{id}', 'CampaignApiController@show')->name("campaigns.app.show");
