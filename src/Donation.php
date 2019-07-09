@@ -30,7 +30,7 @@ class Donation extends Model
      *
      * @return bool
      */
-    public function updateDonationStatus($id, $status)
+    public function updateStatus($id, $status)
     {
         return $this->where('id', $id)
                     ->update(['status' => $status]);
@@ -41,6 +41,12 @@ class Donation extends Model
         if (class_exists('Donator')) {
             return $this->belongsTo('Donator');
         }
+    }
+
+    public function campaign()
+    {
+        if (class_exists('Campaign'))
+            return $this->belongsTo('Campaign');
     }
     
     public function donationItems()

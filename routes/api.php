@@ -13,7 +13,14 @@ Route::group(['prefix' => 'donators', 'as' => 'auth.donators.'], function () {
 Route::group(['prefix' => 'donations', 'as' => 'donations.'], function () {
     Route::post('create', 'DonationApiController@create')->name('create');
     Route::post('proof-upload', 'DonationApiController@proofUpload')->name('proof-upload');
+    Route::get('list/{campaignId}', 'DonationApiController@list')->name('list');
 });
+
+Route::get('admin/donations/list/{campaignId}', 'DonationApiController@list')->name('admin.donations.list')
+    ->middleware('auth:admin');
+Route::post('admin/donations/update-status/{donationId}', 'DonationApiController@updateStatus')
+    ->name('admin.donations.update.status')
+    ->middleware('auth:admin');
 
 Route::group(['prefix'=>config('admin.prefix', 'admin'),'middleware' => 'auth:admin'], function () {
     Route::get('campaigns', 'CampaignApiController@index')->name("campaigns.index");
