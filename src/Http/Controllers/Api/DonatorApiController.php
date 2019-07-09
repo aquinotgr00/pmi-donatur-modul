@@ -50,14 +50,14 @@ class DonatorApiController extends Controller
      * @return void
      */
     public function __construct(
-        Donator $donatorModel,
+        Donator       $donatorModel,
         PasswordReset $passwordResets,
-        User    $users
+        User          $users
     )
     {
-        $this->donators = $donatorModel;
+        $this->donators       = $donatorModel  ;
         $this->passwordResets = $passwordResets;
-        $this->users = $users;
+        $this->users          = $users         ;
 
         $this->middleware('auth:api')->only(['profile', 'updateDonatorProfile']);
     }
@@ -82,7 +82,7 @@ class DonatorApiController extends Controller
         ]);
 
         // TODO: add custom user fields to config so that anyone could adjust
-        $user = $this->users->create($request->only(['name', 'email', 'password']));
+        $user  = $this->users->create($request->only(['name', 'email', 'password']));
         $token = $user->createToken('Personal Access Token');
         
         // add user id to request
@@ -123,23 +123,33 @@ class DonatorApiController extends Controller
         if (!Auth::attempt($request->only(['email', 'password'])))
             return response()->fail([ "message" => "Account does not exist" ], 401);
 
-        $user = $request->user();
+        $user        = $request->user();
         $tokenResult = $user->createToken('Personal Access Token');
-        $token = $tokenResult->token;
+        $token       = $tokenResult->token;
         if ($request->remember_me) {
             $token->expires_at = Carbon::now()->addWeeks(1);
         }
         $token->save();
 
+        $volunteerId = $this->isUserAVolunteer($user);
+
         $response = [
             'access_token' => $tokenResult->accessToken,
-            'token_type'   => 'Bearer',
-            'expires_at'   => Carbon::parse(
-                                    $tokenResult->token->expires_at
-                                )->toDateTimeString()
+            'donator_id'   => $user->donator->id,
+            'volunteer_id' => $volunteerId
         ];
 
         return response()->success($response);
+    }
+
+    private function isUserAVolunteer($user)
+    {
+        $id = null;
+        if ($user->volunteer)
+            if ($user->volunteer()->exists())
+                $id = $user->volunteer->id;
+
+        return $id;
     }
 
     /**
@@ -223,7 +233,7 @@ class DonatorApiController extends Controller
 
     public function profile()
     {
-        $user = auth()->user();
+        $user    = auth()->user();
         $donator = $this->donators->where('user_id', $user->id)->first();
         if (!$donator)
             return response()->fail(['message' => 'Donator not found.']);
@@ -243,7 +253,7 @@ class DonatorApiController extends Controller
         ];
 
         // handle image
-        $image = $this->donators->handleDonatorPicture($request->file('image'));
+        $image   = $this->donators->handleDonatorPicture($request->file('image'));
         $request = new Request($request->all());
         $request->merge([
             'image' => $image
