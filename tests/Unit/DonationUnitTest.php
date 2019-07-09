@@ -3,7 +3,7 @@
 namespace BajakLautMalaka\PmiDonatur\Tests\Unit;
 
 use Tests\TestCase;
-
+use Orchestra\Testbench\TestCase as Orchestra;
 use Illuminate\Foundation\Testing\WithFaker;
 
 use BajakLautMalaka\PmiAdmin\Admin;

@@ -51,7 +51,7 @@ class CampaignApiController extends Controller
         // sort by 
         $campaign = $this->handleSort($request, $campaign);
 
-        return response()->success($campaign->paginate());
+        return response()->success($campaign->with('getType')->with('getDonations')->paginate());
     }
 
     private function handlePublishedOrDraft(Request $request, $campaign)

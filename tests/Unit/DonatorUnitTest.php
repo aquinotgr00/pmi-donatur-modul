@@ -13,8 +13,9 @@ use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Orchestra\Testbench\TestCase as Orchestra;
 
-class DonatorUnitTest extends TestCase
+class DonatorUnitTest extends Orchestra
 {
     use WithFaker;
 
