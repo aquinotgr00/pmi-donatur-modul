@@ -8,7 +8,6 @@ Route::group(['prefix' => 'app', 'as' => 'donators.app.'], function () {
     Route::post('password/change' , 'DonatorApiController@changePassword' )->name('change.password' );
     Route::post('update-profile'  , 'DonatorApiController@updateProfile'  )->name('update.profile'  );
     Route::get ('profile'         , 'DonatorApiController@profile'        )->name('profile'         );
-    Route::get ('history'         , 'DonatorApiController@history'        )->name('history'         );
 });
 
 

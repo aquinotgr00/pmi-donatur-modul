@@ -59,7 +59,10 @@ class DonatorApiController extends Controller
         $this->passwordResets = $passwordResets;
         $this->users          = $users         ;
 
-        $this->middleware('auth:api')->only(['profile', 'updateDonatorProfile']);
+        $this->middleware('auth:api')->only([
+            'profile',
+            'updateDonatorProfile',
+        ]);
     }
 
     /**
@@ -234,9 +237,12 @@ class DonatorApiController extends Controller
     public function profile()
     {
         $user    = auth()->user();
-        $donator = $this->donators->where('user_id', $user->id)->first();
+        $donator = $user->donator;
         if (!$donator)
             return response()->fail(['message' => 'Donator not found.']);
+        if ($donator->donations)
+            $donator->donations;
+
         return response()->success($donator);
     }
 
