@@ -21,10 +21,8 @@ class ReportDonationApiController extends Controller
         $donation = $this->handleSearchCampaign($request, $donation);
 
         $donation = $this->handleSort($request, $donation);
-
-        $donation->paginate();
-
-        return response()->success($donation->with('campaign')->paginate());
+        
+        return response()->success($donation->with('campaign.getType')->with('donator')->paginate());
     }
 
     private function handleDateRanges(Request $request, Donation $donation)
@@ -46,7 +44,7 @@ class ReportDonationApiController extends Controller
         return $donation;
     }
 
-    private function handleSearchName(Request $request,$donation)
+    private function handleSearchName(Request $request, $donation)
     {
         if ($request->has('n')) {
             $donation = $donation->where(function ($query) use ($request) {
@@ -59,14 +57,14 @@ class ReportDonationApiController extends Controller
     private function handleSearchCampaign(Request $request, $donation)
     {
         if ($request->has('c')) {
-            $donation = $donation->whereHas('campaign', function($query) use ($request) {
+            $donation = $donation->whereHas('campaign', function ($query) use ($request) {
                 $query->where('campaigns.title', 'like', '%' . $request->c . '%');
             });
         }
         return $donation;
     }
 
-    private function handleSort(Request $request,$donation)
+    private function handleSort(Request $request, $donation)
     {
         if ($request->has('ob')) {
             // sort direction (default = asc)
@@ -83,7 +81,7 @@ class ReportDonationApiController extends Controller
 
     public function show(int $id)
     {
-        $donation = Donation::with('donation')
+        $donation = Donation::with('campaign.getType')
             ->with('donator')
             ->find($id);
         if (!is_null($donation)) {

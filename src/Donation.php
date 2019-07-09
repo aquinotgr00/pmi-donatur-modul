@@ -30,7 +30,7 @@ class Donation extends Model
      *
      * @return bool
      */
-    public function updateDonationStatus($id, $status)
+    public function updateStatus($id, $status)
     {
         return $this->where('id', $id)
                     ->update(['status' => $status]);
@@ -38,15 +38,21 @@ class Donation extends Model
 
     public function donator()
     {
-        if (class_exists('Donator')) {
-            return $this->belongsTo('Donator');
+        if (class_exists('BajakLautMalaka\PmiDonatur\Donator')) {
+            return $this->belongsTo('BajakLautMalaka\PmiDonatur\Donator');
         }
+    }
+
+    public function campaign()
+    {
+        if (class_exists('BajakLautMalaka\PmiDonatur\Campaign'))
+            return $this->belongsTo('BajakLautMalaka\PmiDonatur\Campaign');
     }
     
     public function donationItems()
     {
-        if (class_exists('DonationItem')) {
-            return $this->hasMany('DonationItem');
+        if (class_exists('BajakLautMalaka\PmiDonatur\DonationItem')) {
+            return $this->hasMany('BajakLautMalaka\PmiDonatur\DonationItem');
         }
     }
     

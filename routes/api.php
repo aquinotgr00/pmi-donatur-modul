@@ -11,18 +11,19 @@ Route::group(['prefix' => 'app/donators', 'as' => 'donators.app.'], function () 
 });
 
 
-
 // ============================================================= DONATION ROUTES
 Route::group(['as' => 'donations.'], function () {
     Route::group(['prefix' => 'app/donations'], function () {
-        Route::post('create'      , 'DonationApiController@create'     )->name('app.create'      );
-        Route::post('proof-upload', 'DonationApiController@proofUpload')->name('app.proof.upload');
+        Route::post('create'            , 'DonationApiController@create'      )->name('app.create'       );
+        Route::post('proof-upload'      , 'DonationApiController@proofUpload' )->name('app.proof.upload' );
+        Route::get ('list/{campaignId}' , 'DonationApiController@list'        )->name('app.list'         );
     });
     Route::group(['prefix' => 'admin/donations', 'middleware' => 'auth:admin'], function () {
-        Route::post('create'      , 'DonationApiController@create'     )->name('admin.create'    );
+        Route::post('create'                     , 'DonationApiController@create'       )->name('admin.create'        );
+        Route::get ('list/{campaignId}'          , 'DonationApiController@list'         )->name('admin.list'          );
+        Route::post('update-status/{donationId}' , 'DonationApiController@updateStatus' )->name('admin.update.status' );
     });
 });
-
 
 
 // ============================================================= CAMPAIGN ROUTES
@@ -33,8 +34,10 @@ Route::group(['prefix'=>config('admin.prefix', 'admin'),'middleware' => 'auth:ad
     Route::put   ('campaigns/{id}'              , 'CampaignApiController@update'               )->name("campaigns.update"       );
     Route::delete('campaigns/{id}'              , 'CampaignApiController@delete'               )->name("campaigns.delete"       );
     Route::post  ('campaign/update/finish/{id}' , 'CampaignApiController@updateFinishCampaign' )->name("campaigns.update.finish" );
+    
+    Route::get   ('reports'                     , 'ReportDonationApiController@index'          )->name("report.index"           );
+    Route::get   ('reports/{id}'                , 'ReportDonationApiController@show'           )->name("report.show"            );
 });
-
 
 
 Route::get('app/campaigns'     , 'CampaignApiController@index')->name("campaigns.app.index");
