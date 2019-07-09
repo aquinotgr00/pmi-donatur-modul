@@ -2,116 +2,48 @@
 
 namespace BajakLautMalaka\PmiDonatur\Tests\Unit;
 
-use BajakLautMalaka\PmiDonatur\Tests\TestCase;
-use Illuminate\Http\UploadedFile;
+use Orchestra\Testbench\TestCase as Orchestra;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Support\Facades\Storage;
-use BajakLautMalaka\PmiDonatur\Campaign;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use BajakLautMalaka\PmiAdmin\Admin;
 
-class CampaignUnitTest extends TestCase
+class CampaignUnitTest extends Orchestra
 {
-    use WithFaker;
-    use WithoutMiddleware;
+    use WithFaker, RefreshDatabase;
 
-    public function testListCampaign()
+    /**
+     * Setup the test environment.
+     */
+    protected function setUp(): void
     {
-        $response = $this->json('GET', '/api/app/campaigns');
-        $response->assertStatus(200);
-        $response->assertSee('data');
+        parent::setUp();
+
+        //$this->artisan('migrate', ['--database' => 'testing']);
+
+        $this->loadMigrationsFrom(realpath(__DIR__ . '/../../database/migrations'));
     }
 
-    public function testCreateCampaignWithoutImage()
+    /**
+     * Define environment setup.
+     *
+     * @param  \Illuminate\Foundation\Application  $app
+     *
+     * @return void
+     */
+    protected function getEnvironmentSetUp($app)
     {
-        $data = [
-            'image_file' => '',
-            'type_id' => 1,
-            'title' => $this->faker->unique()->name,
-            'description' => 'lorem ipsum',
-            'amount_goal' => 10000,
-            'publish'=> 1,
-        ];
-
-        $response = $this->json('POST', '/api/admin/campaign', $data);
-        $response->assertStatus(200);
-        $response->assertSee('image_file');
+        $app['config']->set('database.default', 'testing');
     }
 
-    public function testCreateCampaignCompleted()
+    /** @test */
+    public function it_runs_the_migrations()
     {
-        Storage::fake('public');
-        $this->postJson('api/admin/campaign', [
-            'image_file' => $file = UploadedFile::fake()->image('image.jpg', 1, 1),
-            'fundraising' => 1,
-            'type_id' => 1,
-            'title' => $this->faker->unique()->name,
-            'description' => 'lorem ipsum',
-            'amount_goal' => 10000,
-            'publish'=> 1,
-        ])->assertStatus(200)
-            ->assertSee('image');
-    }
-
-    public function testUpdateCampaign()
-    {
-        $campaign = Campaign::create([
-            'image' => 'http://google.com',
-            'type_id' => 1,
-            'admin_id' => 1,
-            'title' => $this->faker->unique()->name,
-            'description' => 'lorem ipsum',
-            'amount_goal' => 10000,
-            'publish'=> 1,
+        $admin = factory(Admin::class)->create();
+        $token = $admin->createToken('TestToken', [])->accessToken;
+        $response = $this->json('GET', '/api/app/campaigns', [
+            'Accept' => 'application/json',
+            'authorization' => "Bearer $token",
         ]);
-        $this->postJson('api/admin/campaigns/'.$campaign->id, [
-            'title' => 'cek update',
-            'description' => 'lorem ipsum',
-            'amount_goal' => 10000,
-            '_method' => 'PUT'
-        ])->assertStatus(200)
-            ->assertSee('title');
-    }
-
-    public function testDetailsCampaign()
-    {
-        $campaign = Campaign::create([
-            'image' => 'http://google.com',
-            'type_id' => 1,
-            'admin_id' => 1,
-            'title' => $this->faker->unique()->name,
-            'description' => 'lorem ipsum',
-            'amount_goal' => 10000,
-            'publish'=> 1,
-        ]);
-        $this->getJson('api/app/campaigns/'.$campaign->id)->assertStatus(200)
-            ->assertJsonStructure([
-                'data' => [
-                    'id',
-                    'fundraising',
-                    'type_id',
-                    'title',
-                    'image',
-                    'description',
-                    'amount_goal',
-                    'amount_real',
-                    'start_campaign',
-                    'finish_campaign',
-                    'fundraising',
-                    'publish',
-                    'created_at',
-                    'updated_at',
-                    'deleted_at',
-                    'amount_donation',
-                    'get_type' => [
-                        'id',
-                        'name',
-                        'description',
-                        'created_at',
-                        'updated_at'
-                    ],
-                    'get_donations' => []
-
-                ]
-            ]);
+        $response->assertStatus(200);
     }
 }

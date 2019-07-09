@@ -30,6 +30,38 @@ class DonationApiController extends Controller
         $this->donation_items = $donation_items;
     }
 
+    public function list($campaignId)
+    {
+        $donations = $this->donations->where('campaign_id', $campaignId)->paginate(10);
+
+        return response()->success($donations);
+    }
+
+    public function updateStatus(Request $request, $donationId)
+    {
+        $request->validate([
+            'status' => 'required'
+        ]);
+
+        $message = 'Maaf donasi anda tidak diterima karena suatu alasan.';
+
+        if ($request->status === 3)
+            $message = 'Terima kasih atas donasi anda, status donasi anda telah kami terima.';
+
+        $donation = $this->donations->find($donationId);
+
+        $this->donations->updateStatus($donationId, $request->status);
+
+        $data = [
+            'status'  => config('donation.status.'.$request->status),
+            'message' => $message
+        ];
+
+        $this->donations->sendEmailStatus($donation->email, $data);
+
+        return response()->success(['message' => 'Donations status successfully updated.']);
+    }
+
     /**
      * Store donation data.
      *
