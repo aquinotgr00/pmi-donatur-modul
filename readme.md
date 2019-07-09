@@ -40,6 +40,30 @@ composer require bajaklautmalaka/pmi-donatur
 Write a few lines about the usage of this package.
 
 
+## Models
+
+### User (App\User.php)
+
+We need to update the user model with a trait. Your model should now look like this:
+
+```
+use BajakLautMalaka\PmiDonatur\Traits\DonatorUserTrait;
+ 
+class User extends Model implements AuthenticatableContract, CanResetPasswordContract {
+ 
+    use Authenticatable, CanResetPassword, DonatorUserTrait;
+ 
+    // Your other stuff
+    ...
+ 
+}
+```
+
+**Note: It's important that the use statement is added to your User model**
+
+---
+
+
 ## Testing
 Run the tests with:
 
