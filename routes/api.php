@@ -1,13 +1,14 @@
 <?php
 
 // ============================================================= DONATOR ROUTES 
-Route::group(['prefix' => 'app/donators', 'as' => 'donators.app.'], function () {
+Route::group(['prefix' => 'app', 'as' => 'donators.app.'], function () {
     Route::post('signin'          , 'DonatorApiController@signin'         )->name('signin'          );
     Route::post('signup'          , 'DonatorApiController@signup'         )->name('signup'          );
     Route::post('password/reset'  , 'DonatorApiController@resetPassword'  )->name('reset.password'  );
     Route::post('password/change' , 'DonatorApiController@changePassword' )->name('change.password' );
     Route::post('update-profile'  , 'DonatorApiController@updateProfile'  )->name('update.profile'  );
     Route::get ('profile'         , 'DonatorApiController@profile'        )->name('profile'         );
+    Route::get ('history'         , 'DonatorApiController@history'        )->name('history'         );
 });
 
 
