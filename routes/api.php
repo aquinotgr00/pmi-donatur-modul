@@ -1,7 +1,7 @@
 <?php
 
 // ============================================================= DONATOR ROUTES 
-Route::group(['prefix' => 'app/donators', 'as' => 'donators.app.'], function () {
+Route::group(['prefix' => 'app', 'as' => 'donators.app.'], function () {
     Route::post('signin'          , 'DonatorApiController@signin'         )->name('signin'          );
     Route::post('signup'          , 'DonatorApiController@signup'         )->name('signup'          );
     Route::post('password/reset'  , 'DonatorApiController@resetPassword'  )->name('reset.password'  );

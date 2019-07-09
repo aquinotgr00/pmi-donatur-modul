@@ -63,9 +63,7 @@ class Donator extends Model
 
     public function donations()
     {
-        if (class_exists('Donation')) {
-            return $this->hasMany('Donation');
-        }
+        return $this->hasMany('BajakLautMalaka\PmiDonatur\Donation');
     }
 
     public function handleDonatorPicture($image)
