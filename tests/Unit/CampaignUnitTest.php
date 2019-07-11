@@ -2,7 +2,7 @@
 
 namespace BajakLautMalaka\PmiDonatur\Tests\Unit;
 
-use Orchestra\Testbench\TestCase as Orchestra;
+use BajakLautMalaka\PmiDonatur\Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use BajakLautMalaka\PmiAdmin\Admin;

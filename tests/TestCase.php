@@ -6,6 +6,16 @@ use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->loadLaravelMigrations(['--database' => 'testing']);
+        $this->loadMigrationsFrom([
+            '--database' => 'testing',
+            '--path' => realpath(__DIR__.'/../../migrations'),
+        ]);
+    }
+    
     /**
      * Get package providers.
      *
