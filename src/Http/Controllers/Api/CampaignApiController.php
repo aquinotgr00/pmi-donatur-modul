@@ -56,13 +56,16 @@ class CampaignApiController extends Controller
 
     private function handlePublishedOrDraft(Request $request, $campaign)
     {
-        $campaign = $campaign->where('publish', 1);
-        if ($request->has('p')) {
-            if (isset($request->user()->id)) {
-                // only admin can request publish or not
+        if (auth('admin')->user()) {
+            // only admin can request publish or not
+            if ($request->has('p')) {
                 $campaign = $campaign->where('publish', $request->p);
             }
         }
+        else {
+            $campaign = $campaign->where('publish', 1);
+        }
+        
         return $campaign;
     }
 
