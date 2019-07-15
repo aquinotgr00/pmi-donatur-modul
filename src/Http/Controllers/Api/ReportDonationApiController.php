@@ -22,9 +22,13 @@ class ReportDonationApiController extends Controller
 				$donation = $this->handleSort($request, $donation);
 				
         $donation = $donation->whereHas('campaign', function ($query) use ($request) {
-            if ($request->has('type_id')) {
-                $query->where('type_id', $request->input('type_id', 3));
+            
+            if ($request->has('t')) {
+                $query->where('type_id', $request->t);
+            } else {
+                $query->where('type_id', '<>', 3);
             }
+            
             $query->where('fundraising', $request->input('f', 1));
         });
 
