@@ -3,9 +3,8 @@
 namespace BajakLautMalaka\PmiDonatur\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
 use BajakLautMalaka\PmiDonatur\Donation;
+use Illuminate\Http\Request;
 
 class ReportDonationApiController extends Controller
 {
@@ -20,8 +19,15 @@ class ReportDonationApiController extends Controller
 
         $donation = $this->handleSearchCampaign($request, $donation);
 
-        $donation = $this->handleSort($request, $donation);
-        
+				$donation = $this->handleSort($request, $donation);
+				
+        $donation = $donation->whereHas('campaign', function ($query) use ($request) {
+            if ($request->has('type_id')) {
+                $query->where('type_id', $request->input('type_id', 3));
+            }
+            $query->where('fundraising', $request->input('f', 1));
+        });
+
         return response()->success($donation->with('campaign.getType')->with('donator')->paginate());
     }
 
