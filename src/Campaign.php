@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Campaign extends Model
 {
@@ -17,7 +18,12 @@ class Campaign extends Model
         'publish'
     ];
     
-    protected $appends  = ['amount_donation','ranges_donation'];
+    protected $dates = [
+        'start_campaign',
+        'finish_campaign'
+    ];
+    
+    protected $appends  = ['amount_donation','ranges_donation', 'formatted_title'];
     
     /**
      * Global Scope - sort by latest
@@ -129,10 +135,20 @@ class Campaign extends Model
      */
     public function getRangesDonationAttribute()
     {
-        $start      = (is_null($this->start_campaign))? '' : date_format(date_create($this->start_campaign), "j F Y h:m");
-        $finish     = (is_null($this->finish_campaign))? '' : date_format(date_create($this->finish_campaign), "j F Y h:m");
+        $start      = is_null($this->start_campaign) ? '' : $this->start_campaign->format('j M Y');
+        $finish     = is_null($this->finish_campaign)? '' : $this->finish_campaign->format('j M Y');
         $ranges     = $start.' - '.$finish;
         return $ranges;
+    }
+    
+    /**
+     * get formatted title attribute
+     *
+     * @return void
+     */
+    public function getFormattedTitleAttribute()
+    {
+        return Str::limit($this->title, 30);
     }
     
     public function admin(): BelongsTo
