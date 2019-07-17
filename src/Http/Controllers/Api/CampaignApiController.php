@@ -146,9 +146,7 @@ class CampaignApiController extends Controller
      */
     public function show(int $id)
     {
-        $campaign = Campaign::with('getType')
-            ->with('getDonations')
-            ->find($id);
+        $campaign = Campaign::with(['getType','getDonations'])->find($id);
         if (!is_null($campaign)) {
 
             if (isset($campaign->getDonations)) {
@@ -240,5 +238,14 @@ class CampaignApiController extends Controller
         } else {
             return response()->fail($campaign);
         }
+    }
+    
+    public function toggle(Campaign $campaign,$toggleAttribute) {
+        $togglables = [
+            'visibility'=>'hidden',
+            'open-close'=>'closed'
+        ];
+        $campaign->{$togglables[$toggleAttribute]} = !$campaign->{$togglables[$toggleAttribute]};
+        return response()->success($campaign);
     }
 }
