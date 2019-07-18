@@ -26,6 +26,11 @@ class Donator extends Model
         'postal_code', 'gender', 'verified', 'user_id'
     ]; 
 
+    public function user()
+    {
+        return $this->belongsTo('\App\User');
+    }
+
     /**
      * Get the member's name.
      *
@@ -63,7 +68,7 @@ class Donator extends Model
 
     public function donations()
     {
-        return $this->hasMany('BajakLautMalaka\PmiDonatur\Donation');
+        return $this->hasMany('BajakLautMalaka\PmiDonatur\Donation')->orderBy('created_at', 'DESC');
     }
 
     public function handleDonatorPicture($image)
