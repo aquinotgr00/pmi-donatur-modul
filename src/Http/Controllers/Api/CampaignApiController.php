@@ -246,6 +246,7 @@ class CampaignApiController extends Controller
             'open-close'=>'closed'
         ];
         $campaign->{$togglables[$toggleAttribute]} = !$campaign->{$togglables[$toggleAttribute]};
-        return response()->success($campaign);
+        $campaign->save();
+        return response()->success($campaign->load('getType'));
     }
 }
