@@ -38,8 +38,9 @@ Route::group(['prefix'=>config('admin.prefix', 'admin'),'middleware' => 'auth:ad
     Route::get   ('campaigns/{id}'              , 'CampaignApiController@show'                 )->name("campaigns.show"         );
     Route::put   ('campaigns/{id}'              , 'CampaignApiController@update'               )->name("campaigns.update"       );
     Route::delete('campaigns/{id}'              , 'CampaignApiController@delete'               )->name("campaigns.delete"       );
-    Route::post  ('campaign/update/finish/{id}' , 'CampaignApiController@updateFinishCampaign' )->name("campaigns.update.finish");
     
+    Route::post  ('campaign/update/finish/{id}' , 'CampaignApiController@updateFinishCampaign' )->name("campaigns.update.finish" );
+    Route::put   ('campaigns/{campaign}/toggle/{togglableAttribute}','CampaignApiController@toggle');
     Route::get   ('reports'                     , 'ReportDonationApiController@index'          )->name("report.index"           );
     Route::get   ('reports/{id}'                , 'ReportDonationApiController@show'           )->name("report.show"            );
 });

@@ -2,7 +2,7 @@
 
 namespace BajakLautMalaka\PmiDonatur\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
+use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
@@ -36,6 +36,12 @@ class CampaignApiController extends Controller
      */
     public function index(Request $request, Campaign $campaign)
     {
+        // open or closed
+        $campaign = $this->handleOpenOrClosed($request, $campaign);
+        
+        // visible or hidden
+        $campaign = $this->handleVisibility($request, $campaign);
+        
         // published or draft
         $campaign = $this->handlePublishedOrDraft($request, $campaign);
 
@@ -53,16 +59,35 @@ class CampaignApiController extends Controller
 
         return response()->success($campaign->with('getType')->with('getDonations')->paginate());
     }
+    
+    private function handleOpenOrClosed(Request $request, $campaign)
+    {
+        if ($request->has('a')) {
+            $campaign = $campaign->where('closed', !$request->a);
+        }
+        return $campaign;
+    }
+    
+    private function handleVisibility(Request $request, $campaign)
+    {
+        if ($request->has('v')) {
+            $campaign = $campaign->where('hidden', !$request->v);
+        }
+        return $campaign;
+    }
 
     private function handlePublishedOrDraft(Request $request, $campaign)
     {
-        $campaign = $campaign->where('publish', 1);
-        if ($request->has('p')) {
-            if (isset($request->user()->id)) {
-                // only admin can request publish or not
+        if (auth('admin')->user()) {
+            // only admin can request publish or not
+            if ($request->has('p')) {
                 $campaign = $campaign->where('publish', $request->p);
             }
         }
+        else {
+            $campaign = $campaign->where('publish', 1);
+        }
+        
         return $campaign;
     }
 
@@ -143,9 +168,7 @@ class CampaignApiController extends Controller
      */
     public function show(int $id)
     {
-        $campaign = Campaign::with('getType')
-            ->with('getDonations')
-            ->find($id);
+        $campaign = Campaign::with(['getType','getDonations'])->find($id);
         if (!is_null($campaign)) {
 
             if (isset($campaign->getDonations)) {
@@ -237,5 +260,15 @@ class CampaignApiController extends Controller
         } else {
             return response()->fail($campaign);
         }
+    }
+    
+    public function toggle(Campaign $campaign,$toggleAttribute) {
+        $togglables = [
+            'visibility'=>'hidden',
+            'open-close'=>'closed'
+        ];
+        $campaign->{$togglables[$toggleAttribute]} = !$campaign->{$togglables[$toggleAttribute]};
+        $campaign->save();
+        return response()->success($campaign->load('getType'));
     }
 }

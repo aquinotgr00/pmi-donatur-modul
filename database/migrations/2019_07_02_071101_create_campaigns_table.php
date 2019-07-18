@@ -15,7 +15,7 @@ class CreateCampaignsTable extends Migration
     {
         Schema::create('campaigns', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('admin_id');
             $table->unsignedInteger('type_id');
             $table->string('title')->unique();
             $table->string('image');
