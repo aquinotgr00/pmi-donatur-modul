@@ -36,6 +36,12 @@ class CampaignApiController extends Controller
      */
     public function index(Request $request, Campaign $campaign)
     {
+        // open or closed
+        $campaign = $this->handleOpenOrClosed($request, $campaign);
+        
+        // visible or hidden
+        $campaign = $this->handleVisibility($request, $campaign);
+        
         // published or draft
         $campaign = $this->handlePublishedOrDraft($request, $campaign);
 
@@ -52,6 +58,22 @@ class CampaignApiController extends Controller
         $campaign = $this->handleSort($request, $campaign);
 
         return response()->success($campaign->with('getType')->with('getDonations')->paginate());
+    }
+    
+    private function handleOpenOrClosed(Request $request, $campaign)
+    {
+        if ($request->has('a')) {
+            $campaign = $campaign->where('closed', !$request->a);
+        }
+        return $campaign;
+    }
+    
+    private function handleVisibility(Request $request, $campaign)
+    {
+        if ($request->has('v')) {
+            $campaign = $campaign->where('hidden', !$request->v);
+        }
+        return $campaign;
     }
 
     private function handlePublishedOrDraft(Request $request, $campaign)
@@ -246,6 +268,7 @@ class CampaignApiController extends Controller
             'open-close'=>'closed'
         ];
         $campaign->{$togglables[$toggleAttribute]} = !$campaign->{$togglables[$toggleAttribute]};
-        return response()->success($campaign);
+        $campaign->save();
+        return response()->success($campaign->load('getType'));
     }
 }
