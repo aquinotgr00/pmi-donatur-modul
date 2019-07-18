@@ -65,6 +65,16 @@ class DonatorApiController extends Controller
         ]);
     }
 
+    public function list()
+    {
+        $donators = $this->donators->get();
+        foreach ($donators as $donator) {
+            $donator->donations;
+            $donator->user;
+        }
+        return response()->success($donators);
+    }
+
     /**
      * Create user and then donator
      *
