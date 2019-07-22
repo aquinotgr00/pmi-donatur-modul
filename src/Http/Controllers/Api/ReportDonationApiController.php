@@ -19,7 +19,7 @@ class ReportDonationApiController extends Controller
 
         $donation = $this->handleSearchCampaign($request, $donation);
 
-				$donation = $this->handleSort($request, $donation);
+        $donation = $this->handleSort($request, $donation);
 				
         $donation = $donation->whereHas('campaign', function ($query) use ($request) {
             
@@ -31,7 +31,6 @@ class ReportDonationApiController extends Controller
             
             $query->where('fundraising', $request->input('f', 1));
         });
-
         return response()->success($donation->with('campaign.getType')->with('donator')->paginate());
     }
 
@@ -41,7 +40,7 @@ class ReportDonationApiController extends Controller
             $request->has('from') &&
             $request->has('to')
         ) {
-            $donation->whereBetween('created_at', [$request->from, $request->to]);
+            $donation = $donation->whereBetween('created_at', [$request->from, $request->to]);
         }
         return $donation;
     }
@@ -49,7 +48,7 @@ class ReportDonationApiController extends Controller
     private function handleStatus(Request $request, $donation)
     {
         if ($request->has('st')) {
-            $donation->where('status', $request->st);
+            $donation = $donation->where('status', $request->st);
         }
         return $donation;
     }
@@ -58,7 +57,8 @@ class ReportDonationApiController extends Controller
     {
         if ($request->has('n')) {
             $donation = $donation->where(function ($query) use ($request) {
-                $query->where('name', 'like', '%' . $request->n . '%');
+                $query->where('invoice_id', 'like', '%' . $request->n . '%')
+                ->orWhere('name', 'like', '%' . $request->n . '%');
             });
         }
         return $donation;

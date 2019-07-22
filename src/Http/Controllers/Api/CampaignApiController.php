@@ -146,9 +146,8 @@ class CampaignApiController extends Controller
         $file_name  = $image->getFilename() . '.' . $extension;
 
         Storage::disk('public')->put($file_name,  File::get($image));
-
+        
         $image_url = url('storage/' . $file_name);
-
 
         $request->request->add(['image' => $image_url]);
         $request->request->add(['image_file_name' => $file_name]);
