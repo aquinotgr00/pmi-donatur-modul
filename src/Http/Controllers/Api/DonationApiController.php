@@ -80,6 +80,11 @@ class DonationApiController extends Controller
         $invoice            = implode('-', $invoice_parts);
 
         $request->request->add(['invoice_id' => $invoice]);
+        $image = $this->donations->handleDonationImage($request->file('image_file'));
+
+        $request->merge([
+            'image' => $image
+        ]);
 
         $donation = $this->donations->create($request->all());
 
@@ -110,8 +115,9 @@ class DonationApiController extends Controller
     {
         if ($items) {
             foreach ($items as $item) {
-                $item['donation_id'] = $id;
-                $this->donation_items->create($item);
+                $itemArr = (array) json_decode($item);
+                $itemArr['donation_id'] = $id;
+                $this->donation_items->create($itemArr);
             }
         }
     }
@@ -125,7 +131,7 @@ class DonationApiController extends Controller
 
         $donation = $this->donations->find($request->id);
 
-        if (!donation)
+        if (!$donation)
             return response()->fail(['message' => 'Donation not found.']);
 
         $image = $this->donations->handleDonationImage($request->file('image'));
