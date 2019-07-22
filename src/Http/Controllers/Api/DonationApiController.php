@@ -73,6 +73,14 @@ class DonationApiController extends Controller
         // Make a unique code.
         $this->makeUniqueTransactionCode($request);
 
+        $donation_next_id   = Donation::whereDate('created_at',\Carbon\Carbon::today())->count();
+        $donation_next_id   +=1;
+        $invoice_id         = str_pad($donation_next_id, 5, "0", STR_PAD_LEFT);
+        $invoice_parts      = array('INV', date('Y-m-d'), $invoice_id);
+        $invoice            = implode('-', $invoice_parts);
+
+        $request->request->add(['invoice_id' => $invoice]);
+
         $donation = $this->donations->create($request->all());
 
         $this->handleDonationItems($request->donation_items, $donation->id);

@@ -13,9 +13,11 @@ class UpdatePasswordResetsTable extends Migration
      */
     public function up()
     {
+        if (!Schema::hasColumn('password_resets', 'updated_at')) {
         Schema::table('password_resets', function (Blueprint $table) {
             $table->timestamp('updated_at')->nullable();
         });
+        }
     }
 
     /**
