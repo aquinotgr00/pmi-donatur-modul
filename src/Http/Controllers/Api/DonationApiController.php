@@ -37,6 +37,42 @@ class DonationApiController extends Controller
         return response()->success($donations);
     }
 
+    public function listByDonator(Request $request, $donatorId)
+    {
+        $isBetween = false;
+        if ($request->startFrom && $request->finishTo) {
+            $isBetween = true;
+        }
+        $donations = $this->donations
+            ->where('donator_id', $donatorId)
+            ->when($request->status, function ($query) use ($request) {
+                return $query->where('status', $request->status);
+            })
+            ->when($isBetween, function ($query) use ($request) {
+                return $query->whereBetween('created_at', [$request->startFrom, $request->finishTo]);
+            })
+            ->get();
+
+        foreach ($donations as $donation) {
+            $donation->campaign;
+        }
+
+        return response()->success($donations);
+    }
+
+    public function listByRangeDate(Request $request, $donatorId)
+    {
+        $donations = $this->donations
+            ->where('donator_id', $donatorId)
+            ->whereBetween('created_at', [$request->start, $request->end])
+            ->get();
+            
+        foreach ($donations as $donation) {
+            $donation->campaign;
+        }
+        return response()->success($donations);
+    }
+
     public function updateStatus(Request $request, $donationId)
     {
         $request->validate([

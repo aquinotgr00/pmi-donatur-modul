@@ -67,12 +67,13 @@ class DonatorApiController extends Controller
 
     public function list()
     {
-        $donators = $this->donators->get();
+        $donators = $this->donators->paginate(15);
         foreach ($donators as $donator) {
             $donator->donations;
             $donator->user;
         }
-        return response()->success($donators);
+        $admins = $donators;
+        return response()->success(compact('admins'));
     }
 
     /**
@@ -122,6 +123,18 @@ class DonatorApiController extends Controller
         ];
 
         return response()->success($response);
+    }
+    
+    public function show($id)
+    {
+        $donator = $this->donators->find($id);
+        $donator->donations;
+        $donator->user;
+        foreach ($donator->donations as $donation) {
+            $donation->campaign;
+        }
+
+        return response()->success($donator);
     }
 
     /**
