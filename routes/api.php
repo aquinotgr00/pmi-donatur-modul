@@ -10,8 +10,9 @@ Route::group(['as' => 'donators.'], function () {
         Route::post('update-profile'  , 'DonatorApiController@updateProfile'  )->name('update.profile'  );
         Route::get ('profile'         , 'DonatorApiController@profile'        )->name('profile'         );
     });
-    Route::group(['prefix' => 'admin/donators', 'as' => 'admin.'], function () {
+    Route::group(['prefix' => 'admin/donators', 'as' => 'admin.', 'middleware' => 'auth:admin'], function () {
         Route::get('/', 'DonatorApiController@list')->name('list');
+        Route::get('show/{id}', 'DonatorApiController@show')->name('show');
     });
 });
 
@@ -23,10 +24,12 @@ Route::group(['as' => 'donations.'], function () {
         Route::post('proof-upload'      , 'DonationApiController@proofUpload' )->name('app.proof.upload' );
         Route::get ('list/{campaignId}' , 'DonationApiController@list'        )->name('app.list'         );
     });
-    Route::group(['prefix' => 'admin/donations', 'middleware' => 'auth:admin'], function () {
-        Route::post('create'                     , 'DonationApiController@create'       )->name('admin.create'        );
-        Route::get ('list/{campaignId}'          , 'DonationApiController@list'         )->name('admin.list'          );
-        Route::post('update-status/{donationId}' , 'DonationApiController@updateStatus' )->name('admin.update.status' );
+    Route::group(['prefix' => 'admin/donations', 'middleware' => 'auth:admin', 'as' => 'admin.'], function () {
+        Route::post('create'                     , 'DonationApiController@create'          )->name('create'             );
+        Route::get ('list/{campaignId}'          , 'DonationApiController@list'            )->name('list'               );
+        Route::post('update-status/{donationId}' , 'DonationApiController@updateStatus'    )->name('update.status'      );
+        Route::get ('list-by-donator/{id}'       , 'DonationApiController@listByDonator'   )->name('list.by.donator'    );
+        Route::get ('list-by-range-date/{id}'    , 'DonationApiController@listByRangeDate' )->name('list.by.range.date' );
     });
 });
 
