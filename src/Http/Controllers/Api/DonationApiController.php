@@ -203,6 +203,12 @@ class DonationApiController extends Controller
             ]
         );
 
+        if ($request->has('address') && !empty($request->address)) {
+            if ($request->address != $donator->address ) {
+                $donator->update($request->only('address'));
+            }
+        }
+
         $request->request->add(['donator_id' => $donator->id]);
 
         $donation = $this->donations->find($donationId);
@@ -211,7 +217,7 @@ class DonationApiController extends Controller
             
             $donation->update($request->except('address'));
 
-            return response()->success(['message' => 'Success! donations updated']);
+            return response()->success($donation);
         }else{
             return response()->fail(['message' => 'Error! failed to update donations']);
         }

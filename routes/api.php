@@ -45,6 +45,8 @@ Route::group(['prefix'=>config('admin.prefix', 'admin'),'middleware' => 'auth:ad
     Route::put   ('campaigns/{campaign}/toggle/{togglableAttribute}','CampaignApiController@toggle');
     Route::get   ('reports'                     , 'ReportDonationApiController@index'          )->name("report.index"           );
     Route::get   ('reports/{id}'                , 'ReportDonationApiController@show'           )->name("report.show"            );
+    Route::get   ('reports/export/excel'        , 'ReportDonationApiController@exportToExcel'  )->name('admin.list.export.excel');
+    Route::get   ('reports/export/pdf'          , 'ReportDonationApiController@exportToPdf'    )->name('admin.list.export.pdf'  );
 });
 
 

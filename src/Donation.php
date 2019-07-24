@@ -21,10 +21,10 @@ class Donation extends Model
         'donator_id', 'amount', 'pick_method',
         'payment_method', 'status', 'guest', 'anonym',
         'image', 'category', 'admin_id','invoice_id',
-        'address'
+        'address','notes'
     ];
 
-    protected $appends = ['status_text'];
+    protected $appends = ['status_text','payment_method_text','pick_method_text'];
 
     /**
      * Update donation status
@@ -91,5 +91,21 @@ class Donation extends Model
         $id_status  = $this->status;
         $items      = config('donation.status');
         return (isset($items[$id_status]))? $items[$id_status] : '';
+    }
+
+    public function getPaymentMethodTextAttribute()
+    {
+        
+        $id_payment  = $this->payment_method;
+        $items       = config('donation.payment_method');
+        return (isset($items[$id_payment]))? $items[$id_payment] : '';
+        
+    }
+
+    public function getPickMethodTextAttribute()
+    {
+        $id_pick  = $this->pick_method;
+        $items    = config('donation.pick_method');
+        return (isset($items[$id_pick]))? $items[$id_pick] : '';
     }
 }

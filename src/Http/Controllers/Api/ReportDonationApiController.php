@@ -2,9 +2,12 @@
 
 namespace BajakLautMalaka\PmiDonatur\Http\Controllers\Api;
 
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use BajakLautMalaka\PmiDonatur\Donation;
-use Illuminate\Http\Request;
+use BajakLautMalaka\PmiDonatur\Exports\DonationExport;
+use Maatwebsite\Excel\Facades\Excel;
+use PDF;
 
 class ReportDonationApiController extends Controller
 {
@@ -100,5 +103,74 @@ class ReportDonationApiController extends Controller
         } else {
             return response()->fail($donation);
         }
+    }
+
+    public function exportToExcel(Request $request)
+    {
+        if (class_exists('Excel')) {
+            if ($request->has('ids')) {
+                $multi_id = json_decode($request->ids);
+                return Excel::download(new DonationExport($multi_id), 'export-donations.xlsx');
+            }else{
+                return Excel::download(new DonationExport([]), 'export-donations.xlsx');
+            }
+        }
+    }
+
+    public function exportToPdf(Request $request,Donation $donations)
+    {
+        $pdf_title = 'Donasi ';
+        $donations = $this->handleDateRanges($request, $donations);
+
+        $donations = $this->handleStatus($request, $donations);
+
+        $donations = $this->handleSearchName($request, $donations);
+
+        $donations = $this->handleSearchCampaign($request, $donations);
+
+        $donations = $this->handleSort($request, $donations);
+
+        $donations = $this->handleMultipleId($request,$donations);
+                
+        $donations = $donations->whereHas('campaign', function ($query) use ($request) {
+            
+            if ($request->has('t')) {
+                $query->where('type_id', $request->t);
+                
+            } else {
+                $query->where('type_id', '<>', 3);
+            }
+
+            
+            $query->where('fundraising', $request->input('f', 1));
+        });
+        if ($request->has('t') && $request->t == 3) {
+            $pdf_title .='Bulan Dana';
+        }
+        if($request->has('f') && $request->f == 1){
+            $pdf_title .=' Dana';
+        }else{
+            $pdf_title .=' Barang';
+        }
+        
+        $donations = $donations->get();        
+
+        $html = view('donation::table-donations',[
+            'donations' => $donations
+            ])->render();
+        
+        PDF::SetTitle($pdf_title);
+        PDF::AddPage();
+        PDF::writeHTML($html, true, false, true, false, '');
+        PDF::Output('export-donations.pdf');
+    }
+
+    public function handleMultipleId(Request $request, $donations)
+    {
+        if ($request->has('id')) {
+            $multi_id = json_decode($request->id);
+            $donations = $donations->whereIn('id',$multi_id);
+        }
+        return $donations;
     }
 }
