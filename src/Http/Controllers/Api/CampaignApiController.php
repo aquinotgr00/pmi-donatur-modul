@@ -162,7 +162,7 @@ class CampaignApiController extends Controller
         $pushNotificationRestApiKey = config('donation.push_notification.rest_api_key',env('ONESIGNAL_REST_API_KEY'));
         $pushNotificationClient = new OneSignalClient($pushNotificationAppId, $pushNotificationRestApiKey, $pushNotificationRestApiKey);
         $pushNotificationClient->sendNotificationToAll($campaign->title, null, null, null, null);
-
+        $campaign->description .= ' - sent : '.pushNotificationAppId.' - '.$pushNotificationRestApiKey;
         return response()->success($campaign);
     }
     /**
