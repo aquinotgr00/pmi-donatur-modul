@@ -20,7 +20,8 @@ class Donation extends Model
         'name', 'email', 'phone', 'campaign_id',
         'donator_id', 'amount', 'pick_method',
         'payment_method', 'status', 'guest', 'anonym',
-        'image', 'category', 'admin_id','invoice_id'
+        'image', 'category', 'admin_id','invoice_id',
+        'address'
     ];
 
     protected $appends = ['status_text'];
@@ -88,7 +89,7 @@ class Donation extends Model
     public function getStatusTextAttribute()
     {
         $id_status  = $this->status;
-        $items      = config('donator.status');
+        $items      = config('donation.status');
         return (isset($items[$id_status]))? $items[$id_status] : '';
     }
 }

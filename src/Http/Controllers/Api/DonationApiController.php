@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use BajakLautMalaka\PmiDonatur\Donation;
 use BajakLautMalaka\PmiDonatur\DonationItem;
+use BajakLautMalaka\PmiDonatur\Donator;
 use BajakLautMalaka\PmiDonatur\Http\Requests\StoreDonationRequest;
 
 class DonationApiController extends Controller
@@ -150,4 +151,71 @@ class DonationApiController extends Controller
 
         return response()->success(['message' => 'success upload file']);
     }
+
+    public function updateDetails(Request $request, $donationId)
+    {
+        $request->validate([
+            'status' => 'required',
+            'payment_method' => 'required'
+        ]);
+
+        $message = 'Maaf donasi anda tidak diterima karena suatu alasan.';
+
+        if ($request->status === 3)
+            $message = 'Terima kasih atas donasi anda, status donasi anda telah kami terima.';
+
+        $donation = $this->donations->find($donationId);
+        
+        if (!is_null($donation)) {
+            
+            $donation->update($request->all());
+            
+            $data = [
+                'status'  => config('donation.status.'.$request->status),
+                'message' => $message
+            ];
+
+            //$this->donations->sendEmailStatus($donation->email, $data);
+            return response()->success(['message' => 'Success! donations updated']);
+        }else{
+            return response()->fail(['message' => 'Error! failed to update donations']);
+        }
+    }
+
+    public function updateInfo(Request $request, $donationId)
+    {
+        $request->validate([
+            'name' => 'required',
+            'email' => 'email',
+            'phone' => 'required'
+        ]);
+
+
+        $donator = Donator::firstOrCreate(
+            [
+                'phone'=> $request->phone 
+            ],
+            [
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'address' => $request->address,
+            ]
+        );
+
+        $request->request->add(['donator_id' => $donator->id]);
+
+        $donation = $this->donations->find($donationId);
+        
+        if (!is_null($donation)) {
+            
+            $donation->update($request->except('address'));
+
+            return response()->success(['message' => 'Success! donations updated']);
+        }else{
+            return response()->fail(['message' => 'Error! failed to update donations']);
+        }
+    }
+
+
 }

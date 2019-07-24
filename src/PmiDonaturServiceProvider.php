@@ -38,18 +38,18 @@ class PmiDonaturServiceProvider extends ServiceProvider
      */
     private function loadConfig()
     {
-        $path = __DIR__ . '/../config/donator.php';
-        $this->mergeConfigFrom($path, 'donator');
+        $path = __DIR__ . '/../config/donation.php';
+        $this->mergeConfigFrom($path, 'donation');
 
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                $path => config_path('donator.php'),
-            ], 'donator:config');
+                $path => config_path('donation.php'),
+            ], 'donation:config');
         }
     }
 
     /**
-     * Register any load migrations & factories from package donators.
+     * Register any load migrations & factories from package donations.
      *
      * @return void
      */
@@ -67,7 +67,7 @@ class PmiDonaturServiceProvider extends ServiceProvider
      */
     private function loadRoutes(Router $router): void
     {
-        $router->prefix(config('donator.prefix', 'api.donator'))
+        $router->prefix('api')
                ->namespace('BajakLautMalaka\PmiDonatur\Http\Controllers\Api')
                ->middleware(['api'])
                ->group(function () {
@@ -83,12 +83,12 @@ class PmiDonaturServiceProvider extends ServiceProvider
     private function loadViews()
     {
         $path = __DIR__.'/../resources/views';
-        $this->loadViewsFrom($path, 'donator');
+        $this->loadViewsFrom($path, 'donation');
 
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                $path => resource_path('views/bajaklautmalaka/donator'),
-            ], 'donator:views');
+                $path => resource_path('views/bajaklautmalaka/donation'),
+            ], 'donation:views');
         }
     }
 }

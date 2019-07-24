@@ -93,6 +93,7 @@ class ReportDonationApiController extends Controller
     {
         $donation = Donation::with('campaign.getType')
             ->with('donator')
+            ->with('donationItems')
             ->find($id);
         if (!is_null($donation)) {
             return response()->success($donation);

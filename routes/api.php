@@ -27,6 +27,8 @@ Route::group(['as' => 'donations.'], function () {
         Route::post('create'                     , 'DonationApiController@create'       )->name('admin.create'        );
         Route::get ('list/{campaignId}'          , 'DonationApiController@list'         )->name('admin.list'          );
         Route::post('update-status/{donationId}' , 'DonationApiController@updateStatus' )->name('admin.update.status' );
+        Route::post('update-details/{donationId}' , 'DonationApiController@updateDetails' )->name('admin.update.details' );
+        Route::post('update-info/{donationId}' , 'DonationApiController@updateInfo' )->name('admin.update.info' );
     });
 });
 
