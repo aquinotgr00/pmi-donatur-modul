@@ -19,18 +19,18 @@ Route::group(['as' => 'donators.'], function () {
 
 // ============================================================= DONATION ROUTES
 Route::group(['as' => 'donations.'], function () {
+    
     Route::group(['prefix' => 'app/donations'], function () {
         Route::post('create'            , 'DonationApiController@create'      )->name('app.create'       );
         Route::post('proof-upload'      , 'DonationApiController@proofUpload' )->name('app.proof.upload' );
         Route::get ('list/{campaignId}' , 'DonationApiController@list'        )->name('app.list'         );
-    });
-    Route::group(['prefix' => 'admin/donations', 'middleware' => 'auth:admin', 'as' => 'admin.'], function () {
-        Route::post('create'                     , 'DonationApiController@create'          )->name('create'             );
-        Route::get ('list/{campaignId}'          , 'DonationApiController@list'            )->name('list'               );
         Route::post('update-status/{donationId}' , 'DonationApiController@updateStatus'    )->name('update.status'      );
+        Route::post('update-details/{donationId}' , 'DonationApiController@updateDetails' )->name('admin.update.details' );
+        Route::post('update-info/{donationId}' , 'DonationApiController@updateInfo' )->name('admin.update.info' );
         Route::get ('list-by-donator/{id}'       , 'DonationApiController@listByDonator'   )->name('list.by.donator'    );
         Route::get ('list-by-range-date/{id}'    , 'DonationApiController@listByRangeDate' )->name('list.by.range.date' );
     });
+    
 });
 
 
@@ -46,6 +46,8 @@ Route::group(['prefix'=>config('admin.prefix', 'admin'),'middleware' => 'auth:ad
     Route::put   ('campaigns/{campaign}/toggle/{togglableAttribute}','CampaignApiController@toggle');
     Route::get   ('reports'                     , 'ReportDonationApiController@index'          )->name("report.index"           );
     Route::get   ('reports/{id}'                , 'ReportDonationApiController@show'           )->name("report.show"            );
+    Route::get   ('reports/export/excel'        , 'ReportDonationApiController@exportToExcel'  )->name('admin.list.export.excel');
+    Route::get   ('reports/export/pdf'          , 'ReportDonationApiController@exportToPdf'    )->name('admin.list.export.pdf'  );
 });
 
 
