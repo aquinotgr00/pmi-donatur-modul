@@ -117,6 +117,9 @@ class DonationApiController extends Controller
         $invoice            = implode('-', $invoice_parts);
 
         $request->request->add(['invoice_id' => $invoice]);
+        
+        $request->request->add(['payment_method' => 1]);
+
         $image = $this->donations->handleDonationImage($request->file('image_file'));
 
         $request->merge([

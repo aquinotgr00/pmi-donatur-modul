@@ -80,7 +80,7 @@ class Donation extends Model
 
             Storage::disk('public')->put('donation-image/'.$file_name, File::get($image));
 
-            $image_url = url('donation-image/' . $file_name);
+            $image_url = url('storage/donation-image/' . $file_name);
         }
 
         return $image_url;
