@@ -211,7 +211,7 @@ class DonationApiController extends Controller
                 'message' => $message
             ];
 
-            //$this->donations->sendEmailStatus($donation->email, $data);
+            $this->donations->sendEmailStatus($donation->email, $data);
             return response()->success(['message' => 'Success! donations updated']);
         }else{
             return response()->fail(['message' => 'Error! failed to update donations']);
