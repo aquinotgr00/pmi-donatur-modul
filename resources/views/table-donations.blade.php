@@ -1,12 +1,12 @@
 <table border="1" cellpadding="10">
     <thead>
     <tr>
-        <th>Tanggal Donasi</th>
-        <th>ID-Transaksi</th>
-        <th>Nama</th>
-        <th>Judul Donasi</th>
-        <th>Tipe Donasi</th>
-        <th>Status</th>
+        <th><b>Tanggal Donasi</b></th>
+        <th><b>ID-Transaksi</b></th>
+        <th><b>Nama</b></th>
+        <th><b>Judul Donasi</b></th>
+        <th><b>Tipe Donasi</b></th>
+        <th><b>Status</b></th>
     </tr>
     </thead>
     <tbody>
