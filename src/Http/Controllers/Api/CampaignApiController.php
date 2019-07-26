@@ -12,6 +12,7 @@ use BajakLautMalaka\PmiDonatur\Campaign;
 use BajakLautMalaka\PmiDonatur\Http\Requests\StoreCampaignRequest;
 use BajakLautMalaka\PmiDonatur\Http\Requests\UpdateCampaignRequest;
 use BajakLautMalaka\PmiDonatur\Http\Requests\UpdateFinishCampaignRequest;
+use Berkayk\OneSignal\OneSignalClient;
 
 class CampaignApiController extends Controller
 {
@@ -156,7 +157,11 @@ class CampaignApiController extends Controller
         if (isset($campaign->getType)) {
             $campaign->getType;
         }
-
+        
+        $pushNotificationAppId = config('donation.push_notification.app_id',env('ONESIGNAL_APP_ID'));
+        $pushNotificationRestApiKey = config('donation.push_notification.rest_api_key',env('ONESIGNAL_REST_API_KEY'));
+        $pushNotificationClient = new OneSignalClient($pushNotificationAppId, $pushNotificationRestApiKey, $pushNotificationRestApiKey);
+        $pushNotificationClient->sendNotificationToAll($campaign->title, null, null, null, null);
         return response()->success($campaign);
     }
     /**
@@ -184,38 +189,31 @@ class CampaignApiController extends Controller
     /**
      * update campaign
      *
+     * @param integer $campaign
      * @param Request $request
-     * @param integer $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(int $id, UpdateCampaignRequest $request)
+    public function update(Campaign $campaign, UpdateCampaignRequest $request)
     {
-        if (isset($request->user()->id)) {
-            $request->request->add(['admin_id' => $request->user()->id]);
-        }
+        $campaign->admin_id = $request->user()->id;
 
-        $campaign = Campaign::find($id);
+        if ($request->has('image_file')) {
+            $image      = $request->file('image_file');
+            $extension  = $image->getClientOriginalExtension();
+            $file_name  = $image->getFilename() . '.' . $extension;
 
-        if (!is_null($campaign)) {
+            Storage::disk('public')->put($file_name,  File::get($image));
 
-            if ($request->has('image_file')) {
-                $image      = $request->file('image_file');
-                $extension  = $image->getClientOriginalExtension();
-                $file_name  = $image->getFilename() . '.' . $extension;
-
-                Storage::disk('public')->put($file_name,  File::get($image));
-
-                if (file_exists(storage_path('app/public/' . $campaign->image_file_name))) {
-                    unlink(storage_path('app/public/' . $campaign->image_file_name));
-                }
-
-                $image_url = url('storage/' . $file_name);
-                $request->request->add(['image' => $image_url]);
-                $request->request->add(['image_file_name' => $file_name]);
+            if (file_exists(storage_path('app/public/' . $campaign->image_file_name))) {
+                unlink(storage_path('app/public/' . $campaign->image_file_name));
             }
 
-            $campaign->update($request->except('_token', '_method'));
+            $image_url = url('storage/' . $file_name);
+            $request->request->add(['image' => $image_url]);
+            $request->request->add(['image_file_name' => $file_name]);
         }
+
+        $campaign->update($request->except('_token', '_method'));
 
         return response()->success($campaign);
     }
