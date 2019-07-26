@@ -110,10 +110,12 @@ class ReportDonationApiController extends Controller
         if (class_exists('Excel')) {
             if ($request->has('ids')) {
                 $multi_id = json_decode($request->ids);
-                return Excel::download(new DonationExport($multi_id), 'export-donations.xlsx');
+                //return Excel::download(new DonationExport($multi_id), 'export-donations.xlsx');
+                Excel::store(new DonationExport($multi_id), 'public/export-donations.xlsx');
             }else{
-                return Excel::download(new DonationExport([]), 'export-donations.xlsx');
+                Excel::store(new DonationExport([]), 'public/export-donations.xlsx');
             }
+            return response()->success(['url' => url('storage/export-donations.xlsx')]);
         }
     }
 
@@ -162,7 +164,8 @@ class ReportDonationApiController extends Controller
         PDF::SetTitle($pdf_title);
         PDF::AddPage();
         PDF::writeHTML($html, true, false, true, false, '');
-        PDF::Output('export-donations.pdf');
+        PDF::Output(public_path('export-donations.pdf'),'f');
+        return response()->success(['url' => url('export-donations.pdf') ]);
     }
 
     public function handleMultipleId(Request $request, $donations)

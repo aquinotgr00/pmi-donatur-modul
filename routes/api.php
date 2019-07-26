@@ -31,6 +31,9 @@ Route::group(['as' => 'donations.'], function () {
         Route::get ('list-by-range-date/{id}'    , 'DonationApiController@listByRangeDate' )->name('list.by.range.date' );
     });
     
+    Route::group(['prefix' => 'admin/donations'], function () {
+        Route::get ('list-by-donator/{id}'       , 'DonationApiController@listByDonator'   )->name('list.by.donator'    );
+    });
 });
 
 
