@@ -41,9 +41,6 @@ class PmiDonaturServiceProvider extends ServiceProvider
         $path = __DIR__ . '/../config/donation.php';
         $this->mergeConfigFrom($path, 'donation');
 
-        $path = __DIR__ . '/../config/midtrans.php';
-        $this->mergeConfigFrom($path, 'midtrans');
-
         if ($this->app->runningInConsole()) {
             $this->publishes([
                 $path => config_path('donation.php'),
