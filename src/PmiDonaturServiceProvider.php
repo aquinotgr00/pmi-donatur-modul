@@ -83,12 +83,12 @@ class PmiDonaturServiceProvider extends ServiceProvider
     private function loadViews()
     {
         $path = __DIR__.'/../resources/views';
-        $this->loadViewsFrom($path, 'donation');
+        $this->loadViewsFrom($path, 'donator');
 
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                $path => resource_path('views/bajaklautmalaka/donation'),
-            ], 'donation:views');
+                $path => resource_path('views/bajaklautmalaka/donator'),
+            ], 'donator:views');
         }
     }
 }

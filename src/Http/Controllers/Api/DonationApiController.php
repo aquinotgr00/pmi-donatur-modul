@@ -117,6 +117,9 @@ class DonationApiController extends Controller
         $invoice            = implode('-', $invoice_parts);
 
         $request->request->add(['invoice_id' => $invoice]);
+        
+        $request->request->add(['payment_method' => 1]);
+
         $image = $this->donations->handleDonationImage($request->file('image_file'));
 
         $request->merge([
@@ -211,7 +214,7 @@ class DonationApiController extends Controller
                 'message' => $message
             ];
 
-            //$this->donations->sendEmailStatus($donation->email, $data);
+            $this->donations->sendEmailStatus($donation->email, $data);
             return response()->success(['message' => 'Success! donations updated']);
         }else{
             return response()->fail(['message' => 'Error! failed to update donations']);

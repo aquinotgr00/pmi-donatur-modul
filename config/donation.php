@@ -10,7 +10,7 @@ return [
     ],
     'pick_method'=> [
         1 => 'Diantar',
-        2 => 'Dijemput'
+        2 => 'Dikirim'
     ],
     'payment_method'=> [
         1 => 'Manual Transfer',

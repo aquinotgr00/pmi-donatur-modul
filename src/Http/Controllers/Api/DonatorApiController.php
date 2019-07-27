@@ -65,15 +65,30 @@ class DonatorApiController extends Controller
         ]);
     }
 
-    public function list()
+    public function list(Request $request, Donator $donators)
     {
-        $donators = $this->donators->paginate(15);
+        $donators = $this->handleSearch($request,$donators);
+        $donators = $donators->paginate(15);
         foreach ($donators as $donator) {
             $donator->donations;
             $donator->user;
         }
         $admins = $donators;
         return response()->success(compact('admins'));
+    }
+
+    public function handleSearch(Request $request,$donators)
+    {
+        if ($request->has('s')) {
+            $donators = $donators->where('name','like','%'.$request->s.'%')
+            ->orWhere('phone','like','%'.$request->s.'%')
+            ->orWhere('created_at','like','%'.$request->s.'%');
+
+            $donators = $donators->whereHas('user', function ($query) use ($request) {
+                $query->where('users.email', 'like', '%' . $request->s . '%');
+            });
+        }
+        return $donators;
     }
 
     /**
