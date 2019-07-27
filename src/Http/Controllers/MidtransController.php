@@ -11,8 +11,8 @@ class MidtransController extends Controller
 {
     public function charge(Request $request) {
     
-        $api_url = config('midtrans.is_production') ? 'https://app.midtrans.com/snap/v1/transactions' : 'https://app.sandbox.midtrans.com/snap/v1/transactions';
-        $server_key = config('midtrans.server_key');
+        $api_url = config('donation.payment_gateway.is_production') ? 'https://app.midtrans.com/snap/v1/transactions' : 'https://app.sandbox.midtrans.com/snap/v1/transactions';
+        $server_key = config('donation.payment_gateway.server_key');
 
         $client = new Client();
         $response = $client->post(
@@ -26,5 +26,9 @@ class MidtransController extends Controller
                     'json'=>json_decode($request->getContent())
                 ]);
         return $response->getBody();
+    }
+
+    public function notification(Request $request) {
+        return response('', 200);
     }
 }
