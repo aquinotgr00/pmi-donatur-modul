@@ -53,7 +53,7 @@ class CampaignApiController extends Controller
         $campaign = $this->handleCampaignType($request, $campaign);
 
         // fundraising or in-kind (default = fundraising)
-        $campaign = $campaign->where('fundraising', $request->input('f', 1));
+        $campaign = $this->handleDonationType($request, $campaign);
 
         // sort by 
         $campaign = $this->handleSort($request, $campaign);
@@ -111,6 +111,14 @@ class CampaignApiController extends Controller
             $campaign = $campaign->where('type_id', $request->t);
         } else {
             $campaign = $campaign->where('type_id', '<>', 3);
+        }
+        return $campaign;
+    }
+    
+    private function handleDonationType(Request $request, $campaign)
+    {
+        if ($request->has('f')) {
+            $campaign->where('fundraising', $request->input('f', 1));
         }
         return $campaign;
     }
