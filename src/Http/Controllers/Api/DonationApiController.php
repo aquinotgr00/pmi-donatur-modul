@@ -138,7 +138,8 @@ class DonationApiController extends Controller
         $this->donations->sendEmailStatus($donation->email, $data);
 
         $response = [
-            'message' => 'Donations has been made.'
+            'message' => 'Donations has been made.',
+            'donation' => $donation
         ];
         return response()->success($response);
     }
