@@ -153,19 +153,22 @@ class DonationApiController extends Controller
 
     private function handleDonationItems($items, $id)
     {
-        if (is_array($items)) {
-            foreach ($items as $item) {
-                $item['donation_id'] = $id;
-                $this->donation_items->create($item);
+        if($items) {
+            if (is_array($items)) {
+                foreach ($items as $item) {
+                    $item['donation_id'] = $id;
+                    $this->donation_items->create($item);
+                }
+            }
+            else {
+                foreach ($items as $item) {
+                    $itemArr = (array) json_decode($item);
+                    $itemArr['donation_id'] = $id;
+                    $this->donation_items->create($itemArr);
+                }
             }
         }
-        else {
-            foreach ($items as $item) {
-                $itemArr = (array) json_decode($item);
-                $itemArr['donation_id'] = $id;
-                $this->donation_items->create($itemArr);
-            }
-        }
+        
     }
 
     public function proofUpload(Request $request)
