@@ -105,8 +105,8 @@ class DonatorApiController extends Controller
         ]);
 
         // handle image
-        $image = $this->donators->handleDonatorPicture($request->file('image'));
-        $request->merge([
+        $image = $this->donators->handleDonatorPicture($request->file('image_file'));
+        $request->request->add([
             'image' => $image
         ]);
 
