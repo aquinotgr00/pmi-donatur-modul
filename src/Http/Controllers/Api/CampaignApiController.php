@@ -161,6 +161,14 @@ class CampaignApiController extends Controller
         $request->request->add(['image' => $image_url]);
         $request->request->add(['image_file_name' => $file_name]);
 
+        $finish_campaign    = date("Y-m-d", strtotime($request->finish_campaign));
+        $start_campaign     = date("Y-m-d", strtotime($request->start_campaign));
+        
+        $request->merge([
+            'start_campaign' => $start_campaign,
+            'finish_campaign' => $finish_campaign,
+        ]);
+
         $campaign = Campaign::create($request->except('_token'));
         if (isset($campaign->getType)) {
             $campaign->getType;
@@ -188,7 +196,6 @@ class CampaignApiController extends Controller
                     $value->donator;
                 }
             }
-
             return response()->success($campaign);
         } else {
             return response()->fail($campaign);
@@ -204,7 +211,7 @@ class CampaignApiController extends Controller
     public function update(Campaign $campaign, UpdateCampaignRequest $request)
     {
         $campaign->admin_id = $request->user()->id;
-
+        
         if ($request->has('image_file')) {
             $image      = $request->file('image_file');
             $extension  = $image->getClientOriginalExtension();
@@ -220,6 +227,14 @@ class CampaignApiController extends Controller
             $request->request->add(['image' => $image_url]);
             $request->request->add(['image_file_name' => $file_name]);
         }
+
+        $finish_campaign    = date("Y-m-d", strtotime($request->finish_campaign));
+        $start_campaign     = date("Y-m-d", strtotime($request->start_campaign));
+        
+        $request->merge([
+            'start_campaign' => $start_campaign,
+            'finish_campaign' => $finish_campaign,
+        ]);
 
         $campaign->update($request->except('_token', '_method'));
 

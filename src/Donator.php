@@ -81,7 +81,7 @@ class Donator extends Model
 
             Storage::disk('public')->put($folder.'/'.$file_name, File::get($image));
 
-            $image_url = url($folder.'/'.$file_name);
+            $image_url = url('storage/'.$folder.'/'.$file_name);
         }
 
         return $image_url;

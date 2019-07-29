@@ -43,7 +43,7 @@ Route::group(['prefix'=>config('admin.prefix', 'admin'),'middleware' => 'auth:ad
     Route::get   ('campaigns'                   , 'CampaignApiController@index'                )->name("campaigns.index"        );
     Route::post  ('campaign'                    , 'CampaignApiController@store'                )->name("campaigns.store"        );
     Route::get   ('campaigns/{id}'              , 'CampaignApiController@show'                 )->name("campaigns.show"         );
-    Route::put   ('campaigns/{campaign}'              , 'CampaignApiController@update'               )->name("campaigns.update"       );
+    Route::post  ('campaigns/{campaign}'              , 'CampaignApiController@update'         )->name("campaigns.update"       );
     Route::delete('campaigns/{id}'              , 'CampaignApiController@delete'               )->name("campaigns.delete"       );
     
     Route::post  ('campaign/update/finish/{id}' , 'CampaignApiController@updateFinishCampaign' )->name("campaigns.update.finish" );
