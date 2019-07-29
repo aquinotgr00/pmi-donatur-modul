@@ -161,6 +161,14 @@ class CampaignApiController extends Controller
         $request->request->add(['image' => $image_url]);
         $request->request->add(['image_file_name' => $file_name]);
 
+        $finish_campaign    = date("Y-m-d", strtotime($request->finish_campaign));
+        $start_campaign     = date("Y-m-d", strtotime($request->start_campaign));
+        
+        $request->merge([
+            'start_campaign' => $start_campaign,
+            'finish_campaign' => $finish_campaign,
+        ]);
+
         $campaign = Campaign::create($request->except('_token'));
         if (isset($campaign->getType)) {
             $campaign->getType;
