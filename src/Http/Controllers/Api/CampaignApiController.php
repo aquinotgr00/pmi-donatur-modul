@@ -161,8 +161,8 @@ class CampaignApiController extends Controller
         $request->request->add(['image' => $image_url]);
         $request->request->add(['image_file_name' => $file_name]);
 
-        $finish_campaign    = date("Y-m-d", strtotime($request->finish_campaign));
-        $start_campaign     = date("Y-m-d", strtotime($request->start_campaign));
+        $finish_campaign    = date('Y-m-d', strtotime("+1 days",strtotime($request->finish_campaign)));
+        $start_campaign     = date('Y-m-d', strtotime("+1 days",strtotime($request->start_campaign)));
         
         $request->merge([
             'start_campaign' => $start_campaign,
@@ -210,6 +210,7 @@ class CampaignApiController extends Controller
      */
     public function update(Campaign $campaign, UpdateCampaignRequest $request)
     {
+        
         $campaign->admin_id = $request->user()->id;
         
         if ($request->has('image_file')) {
@@ -228,8 +229,8 @@ class CampaignApiController extends Controller
             $request->request->add(['image_file_name' => $file_name]);
         }
 
-        $finish_campaign    = date("Y-m-d", strtotime($request->finish_campaign));
-        $start_campaign     = date("Y-m-d", strtotime($request->start_campaign));
+        $finish_campaign    = date('Y-m-d', strtotime("+1 days",strtotime($request->finish_campaign)));
+        $start_campaign     = date('Y-m-d', strtotime("+1 days",strtotime($request->start_campaign)));
         
         $request->merge([
             'start_campaign' => $start_campaign,
@@ -266,8 +267,10 @@ class CampaignApiController extends Controller
 
     public function updateFinishCampaign(int $id, UpdateFinishCampaignRequest $request)
     {
+        $finish_campaign    = date('Y-m-d', strtotime("+1 days",strtotime($request->finish_campaign)));
+
         $data = (object) [
-            'finish_campaign' => $request->finish_campaign
+            'finish_campaign' => $finish_campaign
         ];
         $campaign = Campaign::updateFinishCampaign($data, $id);
         if (
