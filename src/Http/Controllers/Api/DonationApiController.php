@@ -224,7 +224,12 @@ class DonationApiController extends Controller
             ];
 
             $this->donations->sendEmailStatus($donation->email, $data);
-            return response()->success(['message' => 'Success! donations updated']);
+            $donation->donator;
+            $donation->campaign;
+            $donation->campaign->getType;            
+            $donation->donationItems;
+
+            return response()->success($donation);
         }else{
             return response()->fail(['message' => 'Error! failed to update donations']);
         }
@@ -264,6 +269,11 @@ class DonationApiController extends Controller
         if (!is_null($donation)) {
             
             $donation->update($request->except('address'));
+
+            $donation->donator;
+            $donation->campaign;
+            $donation->campaign->getType;
+            $donation->donationItems;
 
             return response()->success($donation);
         }else{
