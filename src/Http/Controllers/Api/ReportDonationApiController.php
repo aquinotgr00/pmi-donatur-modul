@@ -37,7 +37,7 @@ class ReportDonationApiController extends Controller
         return response()->success($donation->with('campaign.getType')->with('donator')->paginate());
     }
 
-    private function handleDateRanges(Request $request, Donation $donation)
+    private function handleDateRanges(Request $request, $donation)
     {
         if (
             $request->has('from') &&
