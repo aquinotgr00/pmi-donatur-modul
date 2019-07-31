@@ -34,6 +34,7 @@ class DonationApiController extends Controller
     public function list($campaignId,Request $request, Donation $donations)
     {
         $donations = $this->handleDateRanges($request,$donations);
+        $donations = $donations->with('campaign');
         $donations = $donations->where('campaign_id', $campaignId);
         $donations = $donations->where('status',3)->paginate(10);
         return response()->success($donations);

@@ -345,7 +345,8 @@ class DonatorApiController extends Controller
                 'name' => $request->name,
                 'address' => $request->address,
                 'postal_code' => $request->postal_code,
-                'phone' => $request->phone
+                'phone' => $request->phone,
+                'user_id' => $user->id
             ]);
 
 
