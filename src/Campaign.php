@@ -23,7 +23,7 @@ class Campaign extends Model
         'finish_campaign'
     ];
     
-    protected $appends  = ['amount_donation','ranges_donation', 'formatted_title'];
+    protected $appends  = ['amount_donation','ranges_donation', 'formatted_title','image_encode','list_donators'];
     
     /**
      * Global Scope - sort by latest
@@ -154,5 +154,32 @@ class Campaign extends Model
     public function admin(): BelongsTo
     {
         return $this->belongsTo('\BajakLautMalaka\PmiAdmin\Admin');
+    }
+
+    public function getImageEncodeAttribute()
+    {
+
+        $base64_encode  = '';
+        
+        if (file_exists(public_path('storage/'.$this->image_file_name)) ) {
+            
+            $split          = explode('.', $this->image_file_name);
+            
+            if (isset($split[1])) {
+                $ext    = $split[1];
+                $base64_encode ="data:image/$ext;base64,";
+                $base64_encode .= base64_encode(file_get_contents(public_path('storage/'.$this->image_file_name)));
+            }
+        }
+        return $base64_encode;
+    }
+
+    public function getListDonatorsAttribute()
+    {
+        $donations = [];
+        if (isset($this->getDonations)) {
+            $donations = $this->getDonations->where('status',3);
+        }
+        return $donations;
     }
 }

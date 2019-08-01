@@ -6,7 +6,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
-
+use Illuminate\Database\Eloquent\Builder;
 use BajakLautMalaka\PmiDonatur\Campaign;
 
 use BajakLautMalaka\PmiDonatur\Http\Requests\StoreCampaignRequest;
@@ -161,8 +161,8 @@ class CampaignApiController extends Controller
         $request->request->add(['image' => $image_url]);
         $request->request->add(['image_file_name' => $file_name]);
 
-        $finish_campaign    = date("Y-m-d", strtotime($request->finish_campaign));
-        $start_campaign     = date("Y-m-d", strtotime($request->start_campaign));
+        $finish_campaign    = date('Y-m-d', strtotime("+1 days",strtotime($request->finish_campaign)));
+        $start_campaign     = date('Y-m-d', strtotime("+1 days",strtotime($request->start_campaign)));
         
         $request->merge([
             'start_campaign' => $start_campaign,
@@ -188,14 +188,9 @@ class CampaignApiController extends Controller
      */
     public function show(int $id)
     {
-        $campaign = Campaign::with(['getType','getDonations'])->find($id);
+        $campaign = Campaign::with('getType')->find($id);
+        
         if (!is_null($campaign)) {
-
-            if (isset($campaign->getDonations)) {
-                foreach ($campaign->getDonations->where('status', 2) as $key => $value) {
-                    $value->donator;
-                }
-            }
             return response()->success($campaign);
         } else {
             return response()->fail($campaign);
@@ -210,6 +205,7 @@ class CampaignApiController extends Controller
      */
     public function update(Campaign $campaign, UpdateCampaignRequest $request)
     {
+        
         $campaign->admin_id = $request->user()->id;
         
         if ($request->has('image_file')) {
@@ -228,8 +224,8 @@ class CampaignApiController extends Controller
             $request->request->add(['image_file_name' => $file_name]);
         }
 
-        $finish_campaign    = date("Y-m-d", strtotime($request->finish_campaign));
-        $start_campaign     = date("Y-m-d", strtotime($request->start_campaign));
+        $finish_campaign    = date('Y-m-d', strtotime("+1 days",strtotime($request->finish_campaign)));
+        $start_campaign     = date('Y-m-d', strtotime("+1 days",strtotime($request->start_campaign)));
         
         $request->merge([
             'start_campaign' => $start_campaign,
@@ -266,8 +262,10 @@ class CampaignApiController extends Controller
 
     public function updateFinishCampaign(int $id, UpdateFinishCampaignRequest $request)
     {
+        $finish_campaign    = date('Y-m-d', strtotime("+1 days",strtotime($request->finish_campaign)));
+
         $data = (object) [
-            'finish_campaign' => $request->finish_campaign
+            'finish_campaign' => $finish_campaign
         ];
         $campaign = Campaign::updateFinishCampaign($data, $id);
         if (
