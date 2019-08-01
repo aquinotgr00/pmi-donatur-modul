@@ -161,19 +161,22 @@ class CampaignApiController extends Controller
         $request->request->add(['image' => $image_url]);
         $request->request->add(['image_file_name' => $file_name]);
 
-        $finish_campaign    = date('Y-m-d', strtotime("+1 days",strtotime($request->finish_campaign)));
-        $start_campaign     = date('Y-m-d', strtotime("+1 days",strtotime($request->start_campaign)));
-        
-        $request->merge([
-            'start_campaign' => $start_campaign,
-            'finish_campaign' => $finish_campaign,
-        ]);
+        if ($request->has('start_campaign')) {
+            $finish_campaign    = date('Y-m-d', strtotime("+1 days",strtotime($request->finish_campaign)));
+            $start_campaign     = date('Y-m-d', strtotime("+1 days",strtotime($request->start_campaign)));
+            
+            $request->merge([
+                'start_campaign' => $start_campaign,
+                'finish_campaign' => $finish_campaign,
+            ]);
+        }
 
         $campaign = Campaign::create($request->except('_token'));
         if (isset($campaign->getType)) {
             $campaign->getType;
         }
         
+        // TODO : decouple (use Laravel Events instead)
         $pushNotificationAppId = config('donation.push_notification.app_id',env('ONESIGNAL_APP_ID'));
         $pushNotificationRestApiKey = config('donation.push_notification.rest_api_key',env('ONESIGNAL_REST_API_KEY'));
         $pushNotificationClient = new OneSignalClient($pushNotificationAppId, $pushNotificationRestApiKey, $pushNotificationRestApiKey);
