@@ -79,15 +79,13 @@ class Donation extends Model
             $extension  = $image->getClientOriginalExtension();
             $file_name  = $image->getFilename() . '.' . $extension;
 
-            // Storage::disk('public')->put('donation-image/'.$file_name, File::get($image));
+            $path = public_path('storage/donation-image/'.$file_name);
 
-            $image_url = url('storage/donation-image/' . $file_name);
             //Resize image here
-            $thumbnailpath = public_path('storage/donation-image/'.$file_name);
-            $img = Image::make($thumbnailpath)->resize(450, 350, function($constraint) {
+            $img = Image::make($image)->resize(450, 350, function($constraint) {
                 $constraint->aspectRatio();
             });
-            $img->save($thumbnailpath);
+            $img->save($path);
         }
 
         return $image_url;
