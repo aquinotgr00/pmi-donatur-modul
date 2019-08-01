@@ -177,7 +177,7 @@ class DonationApiController extends Controller
     {
         $request->validate([
             'id'    => 'required',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg'
         ]);
 
         $donation = $this->donations->find($request->id);
