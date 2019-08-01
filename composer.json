@@ -16,7 +16,8 @@
         "illuminate/support": "~5.7.0|~5.8.0",
         "doctrine/dbal": "^2.9",
         "berkayk/onesignal-laravel": "^1.0",
-        "guzzlehttp/guzzle": "^6.3"
+        "guzzlehttp/guzzle": "^6.3",
+        "intervention/image": "^2.5"
     },
     "autoload": {
         "psr-4": {
