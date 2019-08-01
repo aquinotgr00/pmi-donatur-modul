@@ -6,7 +6,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
-
+use Illuminate\Database\Eloquent\Builder;
 use BajakLautMalaka\PmiDonatur\Campaign;
 
 use BajakLautMalaka\PmiDonatur\Http\Requests\StoreCampaignRequest;
@@ -188,14 +188,9 @@ class CampaignApiController extends Controller
      */
     public function show(int $id)
     {
-        $campaign = Campaign::with(['getType','getDonations'])->find($id);
+        $campaign = Campaign::with('getType')->find($id);
+        
         if (!is_null($campaign)) {
-
-            if (isset($campaign->getDonations)) {
-                foreach ($campaign->getDonations->where('status', 2) as $key => $value) {
-                    $value->donator;
-                }
-            }
             return response()->success($campaign);
         } else {
             return response()->fail($campaign);

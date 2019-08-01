@@ -31,10 +31,12 @@ class DonationApiController extends Controller
         $this->donation_items = $donation_items;
     }
 
-    public function list($campaignId)
+    public function list($campaignId,Request $request, Donation $donations)
     {
-        $donations = $this->donations->where('campaign_id', $campaignId)->paginate(10);
-
+        $donations = $this->handleDateRanges($request,$donations);
+        $donations = $donations->with('campaign');
+        $donations = $donations->where('campaign_id', $campaignId);
+        $donations = $donations->where('status',3)->paginate(10);
         return response()->success($donations);
     }
 
@@ -281,5 +283,18 @@ class DonationApiController extends Controller
         }
     }
 
-
+    private function handleDateRanges(Request $request, $donations)
+    {
+        if (
+            $request->has('from') &&
+            $request->has('to')
+        ) {
+            $from   = trim($request->from);
+            $to     = trim($request->to);
+            if (!empty($from) && !empty($to)) {
+                $donations = $donations->whereBetween('created_at', [$request->from, $request->to]);
+            }
+        }
+        return $donations;
+    }
 }

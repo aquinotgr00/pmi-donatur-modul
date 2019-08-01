@@ -11,7 +11,7 @@ use BajakLautMalaka\PmiDonatur\Donator;
 use BajakLautMalaka\PmiDonatur\PasswordReset;
 use BajakLautMalaka\PmiDonatur\Http\Requests\SigninPostRequest;
 use BajakLautMalaka\PmiDonatur\Http\Requests\StoreUserDonatorRequest;
-
+use BajakLautMalaka\PmiDonatur\Http\Requests\UpdateDonatorRequest;
 use \App\User;
 
 class DonatorApiController extends Controller
@@ -311,9 +311,47 @@ class DonatorApiController extends Controller
             return response()->fail($response);
 
         $donator->update($request->all());
-        
-        $response['message'] = 'Your data sucessfully changed.';
+        $donator->donations;
+
+        $response['message']    = 'Your data sucessfully changed.';
+
+        $response['donator']       = $donator;
 
         return response()->success($response);
+    }
+
+    public function update(UpdateDonatorRequest $request, $id)
+    {
+        $donator = Donator::find($id);
+        if (! is_null($donator) ) {
+
+            $user = User::firstOrCreate(
+            [
+                'id' => $donator->user_id 
+            ],
+            [
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => bcrypt('password')
+            ]
+        );
+            if ($user->email != $request->email) {
+                $user->update([
+                    'email' => $request->email
+                ]);
+            }
+
+            $donator->update([
+                'name' => $request->name,
+                'address' => $request->address,
+                'postal_code' => $request->postal_code,
+                'phone' => $request->phone,
+                'user_id' => $user->id
+            ]);
+
+
+        }
+        $donator->donations;
+        return response()->success($donator);
     }
 }

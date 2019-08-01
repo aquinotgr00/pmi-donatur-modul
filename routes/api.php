@@ -13,6 +13,7 @@ Route::group(['as' => 'donators.'], function () {
     Route::group(['prefix' => 'admin/donators', 'as' => 'admin.', 'middleware' => 'auth:admin'], function () {
         Route::get('/', 'DonatorApiController@list')->name('list');
         Route::get('show/{id}', 'DonatorApiController@show')->name('show');
+        Route::post('update/{id}'  , 'DonatorApiController@update'  )->name('update'  );
     });
 });
 
@@ -34,6 +35,7 @@ Route::group(['as' => 'donations.'], function () {
         Route::get ('list-by-donator/{id}'          , 'DonationApiController@listByDonator'     )->name('list.by.donator'       );
         Route::post('update-details/{donationId}'   , 'DonationApiController@updateDetails'     )->name('admin.update.details'  );
         Route::post('update-info/{donationId}'      , 'DonationApiController@updateInfo'        )->name('admin.update.info'     );
+        Route::get ('list/{campaignId}'             , 'DonationApiController@list'              )->name('admin.list.campaignId' );            
     });
 });
 
