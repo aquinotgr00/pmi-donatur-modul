@@ -42,11 +42,7 @@ Route::group(['as' => 'donations.'], function () {
 
 // ============================================================= CAMPAIGN ROUTES
 Route::group(['prefix'=>config('admin.prefix', 'admin'),'middleware' => 'auth:admin'], function () {
-    Route::get   ('campaigns'                   , 'CampaignApiController@index'                )->name("campaigns.index"        );
-    Route::post  ('campaign'                    , 'CampaignApiController@store'                )->name("campaigns.store"        );
-    Route::get   ('campaigns/{id}'              , 'CampaignApiController@show'                 )->name("campaigns.show"         );
-    Route::post  ('campaigns/{campaign}'              , 'CampaignApiController@update'         )->name("campaigns.update"       );
-    Route::delete('campaigns/{id}'              , 'CampaignApiController@delete'               )->name("campaigns.delete"       );
+    Route::apiResource('campaigns', 'CampaignApiController');
     
     Route::post  ('campaign/update/finish/{id}' , 'CampaignApiController@updateFinishCampaign' )->name("campaigns.update.finish" );
     Route::put   ('campaigns/{campaign}/toggle/{togglableAttribute}','CampaignApiController@toggle');
