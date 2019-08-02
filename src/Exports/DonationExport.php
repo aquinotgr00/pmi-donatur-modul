@@ -25,7 +25,7 @@ if ( interface_exists('\Maatwebsite\Excel\Concerns\FromView') ) {
     			$donations 			= new Donation;
     			$data['donations'] 	= $donations->whereIn('id',$this->ids)->get(); 
     		}
-			return view('donation::table-donations', $data);
+			return view('donator::table-donations', $data);
     	}
 	}
 
