@@ -157,7 +157,7 @@ class ReportDonationApiController extends Controller
         
         $donations = $donations->get();        
 
-        $html = view('donation::table-donations',[
+        $html = view('donator::table-donations',[
             'donations' => $donations
             ])->render();
         
