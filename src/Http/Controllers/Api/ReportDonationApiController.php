@@ -94,7 +94,7 @@ class ReportDonationApiController extends Controller
 
     public function show(int $id)
     {
-        $donation = Donation::with('campaign.getType')
+        $donation = donator::with('campaign.getType')
             ->with('donator')
             ->with('donationItems')
             ->find($id);
@@ -157,7 +157,7 @@ class ReportDonationApiController extends Controller
         
         $donations = $donations->get();        
 
-        $html = view('donation::table-donations',[
+        $html = view('donator::table-donations',[
             'donations' => $donations
             ])->render();
         
