@@ -30,8 +30,8 @@ class StoreCampaignRequest extends FormRequest
             'image_file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'description' => 'required',
             'amount_goal' => Rule::requiredIf($this->input('fundraising') == 1),
-            'start_campaign' => 'date',
-            'finish_campaign' => 'date',
+            'start_campaign' => 'nullable|date',
+            'finish_campaign' => 'nullable|date',
             'fundraising' => 'required|boolean',
             'publish'=>'required|boolean'
         ];

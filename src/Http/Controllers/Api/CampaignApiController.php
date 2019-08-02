@@ -138,6 +138,14 @@ class CampaignApiController extends Controller
         return $campaign;
     }
 
+    private function pushNotification($message) {
+        $pushNotificationAppId = config('donation.push_notification.app_id',env('ONESIGNAL_APP_ID'));
+        $pushNotificationRestApiKey = config('donation.push_notification.rest_api_key',env('ONESIGNAL_REST_API_KEY'));
+        $pushNotificationClient = new OneSignalClient($pushNotificationAppId, $pushNotificationRestApiKey, $pushNotificationRestApiKey);
+        
+        $pushNotificationClient->sendNotificationToAll($message, null, null, null, null);
+    }
+
     /**
      * store campaign
      *
@@ -146,10 +154,6 @@ class CampaignApiController extends Controller
      */
     public function store(StoreCampaignRequest $request)
     {
-        if (isset($request->user()->id)) {
-            $request->request->add(['admin_id' => $request->user()->id]);
-        }
-
         $image      = $request->file('image_file');
         $extension  = $image->getClientOriginalExtension();
         $file_name  = $image->getFilename() . '.' . $extension;
@@ -158,59 +162,43 @@ class CampaignApiController extends Controller
         
         $image_url = url('storage/' . $file_name);
 
-        $request->request->add(['image' => $image_url]);
-        $request->request->add(['image_file_name' => $file_name]);
+        $campaign = new Campaign;
+        $campaign->fill($request->input());
+        $campaign->image = $image_url;
+        $campaign->image_file_name = $file_name;
+        $campaign->admin_id = $request->user()->id;
+        $campaign->save();
 
-        if ($request->has('start_campaign')) {
-            $finish_campaign    = date('Y-m-d', strtotime("+1 days",strtotime($request->finish_campaign)));
-            $start_campaign     = date('Y-m-d', strtotime("+1 days",strtotime($request->start_campaign)));
-            
-            $request->merge([
-                'start_campaign' => $start_campaign,
-                'finish_campaign' => $finish_campaign,
-            ]);
-        }
-
-        $campaign = Campaign::create($request->except('_token'));
-        if (isset($campaign->getType)) {
-            $campaign->getType;
+        // TODO : decouple (use Laravel Events instead)
+        if ($campaign->publish) {
+            $this->pushNotification($campaign->title);
         }
         
-        // TODO : decouple (use Laravel Events instead)
-        $pushNotificationAppId = config('donation.push_notification.app_id',env('ONESIGNAL_APP_ID'));
-        $pushNotificationRestApiKey = config('donation.push_notification.rest_api_key',env('ONESIGNAL_REST_API_KEY'));
-        $pushNotificationClient = new OneSignalClient($pushNotificationAppId, $pushNotificationRestApiKey, $pushNotificationRestApiKey);
-        $pushNotificationClient->sendNotificationToAll($campaign->title, null, null, null, null);
         return response()->success($campaign);
     }
+
     /**
      * get details campaign
      *
      * @param integer $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show(int $id)
+    public function show(Campaign $campaign)
     {
-        $campaign = Campaign::with('getType')->find($id);
-        
-        if (!is_null($campaign)) {
-            return response()->success($campaign);
-        } else {
-            return response()->fail($campaign);
-        }
+        return response()->success($campaign->load('getType'));
     }
+
     /**
      * update campaign
      *
-     * @param integer $campaign
+     * @param \BajakLautMalaka\PmiDonatur\Campaign $campaign
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function update(Campaign $campaign, UpdateCampaignRequest $request)
     {
-        
-        $campaign->admin_id = $request->user()->id;
-        
+        $mustBroadcast = !$campaign->publish && $request->publish;
+
         if ($request->has('image_file')) {
             $image      = $request->file('image_file');
             $extension  = $image->getClientOriginalExtension();
@@ -223,44 +211,32 @@ class CampaignApiController extends Controller
             }
 
             $image_url = url('storage/' . $file_name);
-            $request->request->add(['image' => $image_url]);
-            $request->request->add(['image_file_name' => $file_name]);
+            $campaign->image = $image_url;
+            $campaign->image_file_name = $file_name;
         }
 
-        $finish_campaign    = date('Y-m-d', strtotime("+1 days",strtotime($request->finish_campaign)));
-        $start_campaign     = date('Y-m-d', strtotime("+1 days",strtotime($request->start_campaign)));
-        
-        $request->merge([
-            'start_campaign' => $start_campaign,
-            'finish_campaign' => $finish_campaign,
-        ]);
+        $campaign->admin_id = $request->user()->id;
 
-        $campaign->update($request->except('_token', '_method'));
+        $campaign->update($request->input());
+
+        if($mustBroadcast) {
+            $this->pushNotification($campaign->title);
+        }
 
         return response()->success($campaign);
     }
+    
     /**
      * delete campaign
      *
-     * @param integer $id
+     * @param \BajakLautMalaka\PmiDonatur\Campaign $campaign
      * @return \Illuminate\Http\JsonResponse
      */
-    public function delete(int $id)
+    public function destroy(Campaign $campaign)
     {
-        $campaign = Campaign::find($id);
-        if (!is_null($campaign)) {
-            $campaign->delete();
-            $data = [
-                'status' => 200,
-                'message' => 'Success! to delete campaign'
-            ];
-        } else {
-            $data = [
-                'status' => 404,
-                'message' => 'Error! data not found'
-            ];
-        }
-        return response()->success(['data' => $data]);
+
+        $campaign->delete();
+        return response()->success($campaign);
     }
 
     public function updateFinishCampaign(int $id, UpdateFinishCampaignRequest $request)

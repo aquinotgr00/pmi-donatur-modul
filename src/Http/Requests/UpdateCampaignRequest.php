@@ -29,11 +29,11 @@ class UpdateCampaignRequest extends FormRequest
         return [
             'type_id' => 'exists:campaign_types,id',
             'title' => 'unique:campaigns,title,' .$this->campaign->id . ',id',
-            'image_file' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'description' => 'required',
+            'image_file' => 'sometimes|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'description' => 'sometimes|required',
             'amount_goal' => 'numeric',
-            'start_campaign' => 'date',
-            'finish_campaign' => 'date',
+            'start_campaign' => 'nullable|date',
+            'finish_campaign' => 'nullable|date',
             'fundraising' => 'boolean',
             'publish'=>'boolean'
         ];
