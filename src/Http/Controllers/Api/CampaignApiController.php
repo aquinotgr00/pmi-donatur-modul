@@ -183,7 +183,7 @@ class CampaignApiController extends Controller
 
         // TODO : decouple (use Laravel Events instead)
         if ($campaign->publish) {
-           // $this->pushNotification($campaign->title);
+           $this->pushNotification($campaign->title);
         }
         return response()->success($campaign);
     }
