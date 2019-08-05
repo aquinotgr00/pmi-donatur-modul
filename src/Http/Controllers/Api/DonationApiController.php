@@ -221,7 +221,8 @@ class DonationApiController extends Controller
                 $campaign = Campaign::find($donation->campaign_id);
                 
                 $campaign->amount_real = $amount_real;
-                $campaign->update();
+                $campaign->save();
+                
             } 
 
             $data = [
