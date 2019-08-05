@@ -97,9 +97,9 @@ class CampaignApiController extends Controller
         if ($request->has('s')) {
             $campaign = $campaign->where(function ($query) use ($request) {
                 $query->where('title', 'like', '%' . $request->s . '%')
-                    ->orWhere('description', 'like', '%' . $request->s . '%')
-                    ->orWhereRaw("DATE_FORMAT(start_campaign,'%M') like CONCAT('%',?,'%')", $request->s)
-                    ->orWhereRaw("DATE_FORMAT(finish_campaign,'%M') like CONCAT('%',?,'%')", $request->s);
+                ->orWhere('description', 'like', '%' . $request->s . '%')
+                ->orWhereRaw("DATE_FORMAT(start_campaign,'%M') like CONCAT('%',?,'%')", $request->s)
+                ->orWhereRaw("DATE_FORMAT(finish_campaign,'%M') like CONCAT('%',?,'%')", $request->s);
             });
         }
         return $campaign;
@@ -154,12 +154,24 @@ class CampaignApiController extends Controller
      */
     public function store(StoreCampaignRequest $request)
     {
+       if (
+            $request->has('start_campaign') &&
+            !is_null($request->start_campaign)
+            ) {
+            
+            $start_campaign     = date('Y-m-d', strtotime("+1 days",strtotime($request->start_campaign)));
+            $finish_campaign    = date('Y-m-d', strtotime("+1 days",strtotime($request->finish_campaign)));
+
+            $request->merge([
+            'start_campaign' => $start_campaign,
+            'finish_campaign' => $finish_campaign,
+            ]);
+        }
+
         $image      = $request->file('image_file');
         $extension  = $image->getClientOriginalExtension();
         $file_name  = $image->getFilename() . '.' . $extension;
-
         Storage::disk('public')->put($file_name,  File::get($image));
-        
         $image_url = url('storage/' . $file_name);
 
         $campaign = new Campaign;
@@ -171,9 +183,8 @@ class CampaignApiController extends Controller
 
         // TODO : decouple (use Laravel Events instead)
         if ($campaign->publish) {
-            $this->pushNotification($campaign->title);
+           // $this->pushNotification($campaign->title);
         }
-        
         return response()->success($campaign);
     }
 
@@ -197,6 +208,22 @@ class CampaignApiController extends Controller
      */
     public function update(Campaign $campaign, UpdateCampaignRequest $request)
     {
+        if (
+            $request->has('start_campaign') &&
+            !is_null($request->start_campaign)
+            ) {
+            
+            $finish_campaign    = date('Y-m-d', strtotime("+1 days",strtotime($request->finish_campaign)));
+            $start_campaign     = date('Y-m-d', strtotime("+1 days",strtotime($request->start_campaign)));
+            
+            $request->merge([
+                'start_campaign' => $start_campaign,
+                'finish_campaign' => $finish_campaign,
+            ]);
+        }
+
+        
+
         $mustBroadcast = !$campaign->publish && $request->publish;
 
         if ($request->has('image_file')) {
@@ -225,7 +252,7 @@ class CampaignApiController extends Controller
 
         return response()->success($campaign);
     }
-    
+
     /**
      * delete campaign
      *
@@ -244,28 +271,28 @@ class CampaignApiController extends Controller
         $finish_campaign    = date('Y-m-d', strtotime("+1 days",strtotime($request->finish_campaign)));
 
         $data = (object) [
-            'finish_campaign' => $finish_campaign
+        'finish_campaign' => $finish_campaign
         ];
         $campaign = Campaign::updateFinishCampaign($data, $id);
         if (
             isset($campaign->getType) &&
             isset($campaign->getDonations)
-        ) {
+            ) {
             $campaign->getType;
-            $campaign->getDonations;
-            return response()->success($campaign);
-        } else {
-            return response()->fail($campaign);
-        }
+        $campaign->getDonations;
+        return response()->success($campaign);
+    } else {
+        return response()->fail($campaign);
     }
-    
-    public function toggle(Campaign $campaign,$toggleAttribute) {
-        $togglables = [
-            'visibility'=>'hidden',
-            'open-close'=>'closed'
-        ];
-        $campaign->{$togglables[$toggleAttribute]} = !$campaign->{$togglables[$toggleAttribute]};
-        $campaign->save();
-        return response()->success($campaign->load('getType'));
-    }
+}
+
+public function toggle(Campaign $campaign,$toggleAttribute) {
+    $togglables = [
+    'visibility'=>'hidden',
+    'open-close'=>'closed'
+    ];
+    $campaign->{$togglables[$toggleAttribute]} = !$campaign->{$togglables[$toggleAttribute]};
+    $campaign->save();
+    return response()->success($campaign->load('getType'));
+}
 }

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use BajakLautMalaka\PmiDonatur\Donation;
 use BajakLautMalaka\PmiDonatur\DonationItem;
 use BajakLautMalaka\PmiDonatur\Donator;
+use BajakLautMalaka\PmiDonatur\Campaign;
 use BajakLautMalaka\PmiDonatur\Http\Requests\StoreDonationRequest;
 
 class DonationApiController extends Controller
@@ -121,7 +122,6 @@ class DonationApiController extends Controller
         $request->request->add(['invoice_id' => $invoice]);
         
         $request->request->add(['payment_method' => 1]);
-
         $image = $this->donations->handleDonationImage($request->file('image_file'));
 
         $request->merge([
@@ -157,18 +157,10 @@ class DonationApiController extends Controller
     private function handleDonationItems($items, $id)
     {
         if($items) {
-            if (is_array($items)) {
-                foreach ($items as $item) {
-                    $item['donation_id'] = $id;
-                    $this->donation_items->create($item);
-                }
-            }
-            else {
-                foreach ($items as $item) {
-                    $itemArr = (array) json_decode($item);
-                    $itemArr['donation_id'] = $id;
-                    $this->donation_items->create($itemArr);
-                }
+           foreach ($items as $item) {
+                $itemArr = (array) json_decode($item);
+                $itemArr['donation_id'] = $id;
+                $this->donation_items->create($itemArr);
             }
         }
     }
@@ -186,7 +178,7 @@ class DonationApiController extends Controller
             return response()->fail(['message' => 'Donation not found.']);
 
         $image = $this->donations->handleDonationImage($request->file('image'));
-
+        
         $data = [
             'status'  => 'Waiting',
             'message' => 'Terima kasih sudah meng-upload bukti transfer, silahkan tunggu.'
@@ -210,27 +202,37 @@ class DonationApiController extends Controller
         ]);
 
         $message = 'Maaf donasi anda tidak diterima karena suatu alasan.';
-
-        if ($request->status === 3)
-            $message = 'Terima kasih atas donasi anda, status donasi anda telah kami terima.';
-
         $donation = $this->donations->find($donationId);
         
         if (!is_null($donation)) {
-            
+
             $donation->update($request->all());
-            
+
+            if ($donation->status === 3 ){
+                
+                $message = 'Terima kasih atas donasi anda, status donasi anda telah kami terima.';
+                
+                $amount_real = 0;
+                
+                foreach ($donation->campaign->list_donators as $key => $value) {
+                    $amount_real += intval($value->amount);
+                }
+                
+                $campaign = Campaign::find($donation->campaign_id);
+                
+                $campaign->amount_real = $amount_real;
+                $campaign->update();
+            } 
+
             $data = [
                 'status'  => config('donation.status.'.$request->status),
                 'message' => $message
             ];
-
             $this->donations->sendEmailStatus($donation->email, $data);
             $donation->donator;
             $donation->campaign;
             $donation->campaign->getType;            
             $donation->donationItems;
-
             return response()->success($donation);
         }else{
             return response()->fail(['message' => 'Error! failed to update donations']);

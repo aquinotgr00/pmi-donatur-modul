@@ -320,7 +320,7 @@ class DonatorApiController extends Controller
         return response()->success($response);
     }
 
-    public function update(UpdateDonatorRequest $request, $id)
+    public function update($id, UpdateDonatorRequest $request)
     {
         $donator = Donator::find($id);
         if (! is_null($donator) ) {
