@@ -159,8 +159,8 @@ class CampaignApiController extends Controller
             !is_null($request->start_campaign)
             ) {
             
-            $start_campaign     = date('Y-m-d', strtotime("+1 days",strtotime($request->start_campaign)));
-            $finish_campaign    = date('Y-m-d', strtotime("+1 days",strtotime($request->finish_campaign)));
+            $start_campaign     = date('Y-m-d', strtotime($request->start_campaign));
+            $finish_campaign    = date('Y-m-d', strtotime($request->finish_campaign));
 
             $request->merge([
             'start_campaign' => $start_campaign,
@@ -219,8 +219,8 @@ class CampaignApiController extends Controller
             !is_null($request->start_campaign)
             ) {
             
-            $finish_campaign    = date('Y-m-d', strtotime("+1 days",strtotime($request->finish_campaign)));
-            $start_campaign     = date('Y-m-d', strtotime("+1 days",strtotime($request->start_campaign)));
+            $finish_campaign    = date('Y-m-d', strtotime($request->finish_campaign));
+            $start_campaign     = date('Y-m-d', strtotime($request->start_campaign));
             
             $request->merge([
                 'start_campaign' => $start_campaign,
