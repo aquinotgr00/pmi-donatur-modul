@@ -27,7 +27,8 @@ class UpdateDonatorRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => 'unique:users,email,' .$this->request->all()['user_id'] . ',id',
+            'user_id' => 'nullable',
+            'email' => 'unique:users,email,' .$this->request->get('user_id') . ',id',
             'name' => 'required',
             'phone' => 'required',
         ];

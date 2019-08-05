@@ -85,7 +85,10 @@ class Donation extends Model
             $img = Image::make($image)->resize(450, 350, function($constraint) {
                 $constraint->aspectRatio();
             });
+            
             $img->save($path);
+            
+            $image_url = url('storage/donation-image/'.$file_name);
         }
 
         return $image_url;
