@@ -194,9 +194,15 @@ class CampaignApiController extends Controller
      * @param integer $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show(Campaign $campaign)
+    public function show(int $id)
     {
-        return response()->success($campaign->load('getType'));
+        $campaign = Campaign::with('getType')->find($id);
+        
+        if (!is_null($campaign)) {
+            return response()->success($campaign);
+        } else {
+            return response()->fail($campaign);
+        }
     }
 
     /**
