@@ -172,25 +172,13 @@ class DonatorApiController extends Controller
         }
         $token->save();
 
-        $volunteerId = $this->isUserAVolunteer($user);
-
         $response = [
             'access_token' => $tokenResult->accessToken,
-            'donator_id'   => $user->donator->id,
-            'volunteer_id' => $volunteerId
+            'donator_id'   => $user->donator ? $user->donator->id:null,
+            'volunteer_id' => $user->volunteer ? $user->volunteer->id:null
         ];
 
         return response()->success($response);
-    }
-
-    private function isUserAVolunteer($user)
-    {
-        $id = null;
-        if ($user->volunteer)
-            if ($user->volunteer()->exists())
-                $id = $user->volunteer->id;
-
-        return $id;
     }
 
     /**
