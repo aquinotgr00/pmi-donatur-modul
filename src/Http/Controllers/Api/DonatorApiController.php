@@ -129,15 +129,7 @@ class DonatorApiController extends Controller
         ];
         $this->donators->sendEmailAndToken($data);
         
-        $response = [
-            'access_token' => $token->accessToken,
-            'token_type'   => 'Bearer',
-            'expires_at'   => Carbon::parse(
-                                    $token->token->expires_at
-                                )->toDateTimeString()
-        ];
-
-        return response()->success($response);
+        return response()->success(['access_token' => $token->accessToken]);
     }
     
     public function show($id)

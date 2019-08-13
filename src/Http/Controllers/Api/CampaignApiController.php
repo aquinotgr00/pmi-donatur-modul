@@ -57,8 +57,9 @@ class CampaignApiController extends Controller
 
         // sort by 
         $campaign = $this->handleSort($request, $campaign);
-
-        return response()->success($campaign->with('getType')->with('getDonations')->paginate());
+        
+        $getResult = $request->has('page')?'paginate':'get';
+        return response()->success($campaign->with(['getType','getDonations'])->$getResult());
     }
     
     private function handleOpenOrClosed(Request $request, $campaign)
