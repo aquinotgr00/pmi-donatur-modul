@@ -21,7 +21,7 @@ class Donation extends Model
         'name', 'email', 'phone', 'campaign_id',
         'donator_id', 'amount', 'pick_method',
         'payment_method', 'status', 'guest', 'anonym',
-        'image', 'category', 'admin_id','invoice_id',
+        'image', 'admin_id','invoice_id',
         'address','notes'
     ];
 

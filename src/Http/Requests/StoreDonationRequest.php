@@ -3,6 +3,7 @@
 namespace BajakLautMalaka\PmiDonatur\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreDonationRequest extends FormRequest
 {
@@ -24,12 +25,19 @@ class StoreDonationRequest extends FormRequest
     public function rules()
     {
         return [
-            'campaign_id'    => 'required',
-            'category'       => 'required',
+            'campaign_id'=>[
+                'required',
+                Rule::exists('campaigns','id')->where(function ($query) {
+                    $query
+                    ->where('hidden', 0)
+                    ->where('closed', 0)
+                    ->where('publish', 1);
+                })
+            ],
             'name'           => 'required|string',
             'email'          => 'required|string|email',
             'phone'          => 'required|string',
-            'amount'         => 'required',
+            'amount'         => 'required|numeric|min:10000',
             'payment_method' => 'string',
             'pick_method'    => 'string',
             'anonym'         => 'boolean'

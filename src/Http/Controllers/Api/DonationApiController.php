@@ -32,7 +32,7 @@ class DonationApiController extends Controller
         $this->donation_items = $donation_items;
     }
 
-    public function list($campaignId,Request $request, Donation $donations)
+    public function index($campaignId,Request $request, Donation $donations)
     {
         $donations = $this->handleDateRanges($request,$donations);
         $donations = $donations->with('campaign');
@@ -108,19 +108,11 @@ class DonationApiController extends Controller
      * @param StoreDonationRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function create(StoreDonationRequest $request)
+    public function store(StoreDonationRequest $request)
     {
         // Make a unique code.
         $this->makeUniqueTransactionCode($request);
 
-        $donation_next_id   = Donation::whereDate('created_at',\Carbon\Carbon::today())->count();
-        $donation_next_id   +=1;
-        $invoice_id         = str_pad($donation_next_id, 5, "0", STR_PAD_LEFT);
-        $invoice_parts      = array('INV', date('Y-m-d'), $invoice_id);
-        $invoice            = implode('-', $invoice_parts);
-
-        $request->request->add(['invoice_id' => $invoice]);
-        
         $request->request->add(['payment_method' => 1]);
         $image = $this->donations->handleDonationImage($request->file('image_file'));
 
@@ -148,10 +140,9 @@ class DonationApiController extends Controller
 
     private function makeUniqueTransactionCode(StoreDonationRequest $request)
     {
-        if ($request->amount !== 0)
-            $request->merge([
-                'amount' => $request->amount + rand(1, 99)
-            ]);
+        $request->merge([
+            'amount' => $request->amount + rand(1, 99)
+        ]);
     }
 
     private function handleDonationItems($items, $id)
