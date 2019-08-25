@@ -6,13 +6,12 @@ use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
-use Illuminate\Database\Eloquent\Builder;
 use BajakLautMalaka\PmiDonatur\Campaign;
 
 use BajakLautMalaka\PmiDonatur\Http\Requests\StoreCampaignRequest;
 use BajakLautMalaka\PmiDonatur\Http\Requests\UpdateCampaignRequest;
 use BajakLautMalaka\PmiDonatur\Http\Requests\UpdateFinishCampaignRequest;
-use Berkayk\OneSignal\OneSignalClient;
+use BajakLautMalaka\PmiDonatur\Events\CampaignPublished;
 
 class CampaignApiController extends Controller
 {
@@ -139,14 +138,6 @@ class CampaignApiController extends Controller
         return $campaign;
     }
 
-    private function pushNotification($message) {
-        $pushNotificationAppId = config('donation.push_notification.app_id',env('ONESIGNAL_APP_ID'));
-        $pushNotificationRestApiKey = config('donation.push_notification.rest_api_key',env('ONESIGNAL_REST_API_KEY'));
-        $pushNotificationClient = new OneSignalClient($pushNotificationAppId, $pushNotificationRestApiKey, $pushNotificationRestApiKey);
-        
-        $pushNotificationClient->sendNotificationToAll($message, null, null, null, null);
-    }
-
     /**
      * store campaign
      *
@@ -182,9 +173,8 @@ class CampaignApiController extends Controller
         $campaign->admin_id = $request->user()->id;
         $campaign->save();
 
-        // TODO : decouple (use Laravel Events instead)
         if ($campaign->publish) {
-           $this->pushNotification($campaign->title);
+            event(new CampaignPublished($campaign));
         }
         return response()->success($campaign);
     }
@@ -254,7 +244,7 @@ class CampaignApiController extends Controller
         $campaign->update($request->input());
 
         if($mustBroadcast) {
-            $this->pushNotification($campaign->title);
+            event(new CampaignPublished($campaign));
         }
 
         return response()->success($campaign);
