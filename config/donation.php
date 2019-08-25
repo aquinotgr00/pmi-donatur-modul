@@ -17,8 +17,8 @@ return [
         2 => 'Otomatis Transfer'
     ],
     'push_notification' => [
-        'app_id' => 'f15f0f81-9c61-4cf1-ac1d-74e25525ff5a',
-        'rest_api_key' => 'ZmU3MWM4MTgtZTEzZi00YWE1LWEzYWUtZGI5MDkwMzQ2Yzk3'
+        'app_id' => 'b7d76b60-8459-4fcc-8b38-fc1147614d9b',
+        'rest_api_key' => 'YTM2ZGI1MzMtZDAzNS00NDQzLWFmNzctY2NjYTdhYjU2MDcz'
     ],
     'payment_gateway' => [
         'is_production' => env('MIDTRANS_IS_PRODUCTION', false),
