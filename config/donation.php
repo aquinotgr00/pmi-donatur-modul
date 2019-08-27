@@ -9,8 +9,8 @@ return [
         5 => 'Selesai'
     ],
     'pick_method'=> [
-        1 => 'Diantar',
-        2 => 'Dikirim'
+        1 => 'Antar',
+        2 => 'Jemput'
     ],
     'payment_method'=> [
         1 => 'Manual Transfer',
