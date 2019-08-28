@@ -129,7 +129,7 @@ class DonationApiController extends Controller
             'message' => 'Terima kasih sudah berbuat baik silahkan transfer dan upload disini.'
         ];
 
-        $this->donations->sendEmailStatus($donation->email, $data);
+        $this->donations->sendEmailStatus($donation->email, $donation);
 
         $response = [
             'message' => 'Donations has been made.',

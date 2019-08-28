@@ -8,6 +8,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use BajakLautMalaka\PmiDonatur\Mail\DonationEmailStatus;
+use BajakLautMalaka\PmiDonatur\Donation;
 use Mail;
 
 class SendEmailStatus implements ShouldQueue
@@ -24,20 +25,20 @@ class SendEmailStatus implements ShouldQueue
     /**
      * Create a new parameter.
      *
-     * @var mixed details
+     * @var mixed donation
      */
-    protected $details;
+    protected $donation;
 
     /**
      * Create a new job instance.
-     * @param array $details
+     * @param array $donation
      *
      * @return void
      */
-    public function __construct($email, $details)
+    public function __construct(string $email,Donation $donation)
     {
         $this->email = $email;
-        $this->details = $details;
+        $this->donation = $donation;
     }
 
     /**
@@ -47,9 +48,8 @@ class SendEmailStatus implements ShouldQueue
      */
     public function handle()
     {
-        Mail::to($this->email)
-                ->send(
-                    new DonationEmailStatus($this->details)
+        Mail::to($this->email)->send(
+                    new DonationEmailStatus($this->donation)
                 );
     }
 }
