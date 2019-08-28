@@ -48,8 +48,7 @@ class SendEmailStatus implements ShouldQueue
      */
     public function handle()
     {
-        Mail::to($this->email)
-                ->send(
+        Mail::to($this->email)->send(
                     new DonationEmailStatus($this->donation)
                 );
     }
