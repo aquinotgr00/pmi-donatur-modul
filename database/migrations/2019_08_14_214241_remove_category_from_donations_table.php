@@ -13,9 +13,11 @@ class RemoveCategoryFromDonationsTable extends Migration
      */
     public function up()
     {
-        Schema::table('donations', function (Blueprint $table) {
-            $table->dropColumn('category');
-        });
+        if (Schema::hasColumn('donations', 'category')) {
+            Schema::table('donations', function (Blueprint $table) {
+                $table->dropColumn('category');
+            });
+        }
     }
 
     /**
@@ -25,8 +27,6 @@ class RemoveCategoryFromDonationsTable extends Migration
      */
     public function down()
     {
-        Schema::table('donations', function (Blueprint $table) {
-            //
-        });
+        
     }
 }

@@ -5,6 +5,7 @@ namespace BajakLautMalaka\PmiDonatur;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Factory;
 use Illuminate\Routing\RouteRegistrar as Router;
+use BajakLautMalaka\PmiDonatur\PmiDonaturEventServiceProvider;
 
 class PmiDonaturServiceProvider extends ServiceProvider
 {
@@ -15,7 +16,7 @@ class PmiDonaturServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->register(PmiDonaturEventServiceProvider::class);
     }
 
     /**
