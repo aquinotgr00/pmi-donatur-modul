@@ -96,7 +96,7 @@
                                           <!-- content -->
                                           <tr>
                                              <td style="font-family: 'Open Sans', sans-serif; font-size: 14px; text-align:center; line-height: 30px;" st-content="fulltext-content">
-                                                <a href="#" style="background-color: #ED1C24; border-radius: 20px; padding: 10px 65px; color: #ffffff;">Klik Disini</a>
+                                                <a href="http://{{$access_token}}" style="background-color: #ED1C24; border-radius: 20px; padding: 10px 65px; color: #ffffff;">Klik Disini</a>
                                              </td>
                                           </tr>
                                           <!-- End of content -->

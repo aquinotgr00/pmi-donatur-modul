@@ -12,7 +12,7 @@ $factory->define(Donation::class, function (Faker $faker) {
         'email'         => $faker->unique()->email,
         'phone'         => $faker->phoneNumber,
         'image'         => $faker->imageUrl(640,480),
-        'category'      => $faker->numberBetween(1,4),
+        //'category'      => $faker->numberBetween(1,4),
         'amount'        => $faker->numberBetween(1000000,25000000),
         'pick_method'   => $faker->randomElement([1,2]),
         'payment_method'=> $faker->randomElement([1,2]),

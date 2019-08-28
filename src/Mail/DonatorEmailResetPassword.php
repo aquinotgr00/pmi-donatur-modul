@@ -35,7 +35,7 @@ class DonatorEmailResetPassword extends Mailable
      */
     public function build()
     {
-        return $this->view('donator::mail-reset')
+        return $this->view('donator::mail-forgot-password')
                     ->with([
                         'access_token' => $this->content
                     ]);

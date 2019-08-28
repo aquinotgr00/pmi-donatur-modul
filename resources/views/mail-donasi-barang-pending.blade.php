@@ -72,7 +72,7 @@
                                           <!-- Title -->
                                           <tr>
                                              <td style="font-family: 'Open Sans', sans-serif; font-size: 22px; color: #ED1C24; text-align:center; line-height: 30px;" st-title="fulltext-heading">
-                                                Hi Tegar
+                                                Hi {{ (isset($donation->name))? $donation->name : ''  }}
                                              </td>
                                           </tr>
                                           <!-- End of Title -->
@@ -97,7 +97,7 @@
                                           <tr>
                                              <td style="font-family: 'Open Sans', sans-serif; text-align:left; line-height: 30px;" st-content="fulltext-content">
                                                 <label style="font-size: 12px; font-weight: bold; color: #3E3E3E;">Judul:</label>
-                                                <p style="font-size: 12px; color: #3E3E3E; line-height: 20px;">Donasi Barang regular</p>
+                                                <p style="font-size: 12px; color: #3E3E3E; line-height: 20px;">{{ (isset($donation->campaign->title))? $donation->campaign->title : ''  }}</p>
                                              </td>
                                           </tr>
                                           <!-- spacing -->
@@ -108,7 +108,7 @@
                                           <tr>
                                              <td style="font-family: 'Open Sans', sans-serif; text-align:left; line-height: 30px;" st-content="fulltext-content">
                                                 <label style="font-size: 12px; font-weight: bold; color: #3E3E3E;">Metode Penyerahan:</label>
-                                                <p style="font-size: 12px; color: #3E3E3E; line-height: 20px;">Kirim/Antar</p>
+                                                <p style="font-size: 12px; color: #3E3E3E; line-height: 20px;">{{ (isset($donation->pick_method_text))? $donation->pick_method_text : ''  }}</p>
                                              </td>
                                           </tr>
                                           <!-- spacing -->
@@ -119,7 +119,13 @@
                                           <tr>
                                              <td style="font-family: 'Open Sans', sans-serif; text-align:left; line-height: 30px;" st-content="fulltext-content">
                                                 <label style="font-size: 12px; font-weight: bold; color: #3E3E3E;">Barang:</label>
-                                                <p style="font-size: 12px; color: #ED1C24; line-height: 20px; font-weight: bold">Susu kaleng untuk balita umur 3-5 bulan, 20 kaleng<br>Indomie, 10 Karton</p>
+                                                <p style="font-size: 12px; color: #ED1C24; line-height: 20px; font-weight: bold">
+                                                   @if(isset($donation->donationItems))
+                                                      @foreach($donation->donationItems as $key => $value)
+                                                         {{ $value->name }} {{ $value->amount }} <br/>
+                                                      @endforeach
+                                                   @endif
+                                                </p>
                                              </td>
                                           </tr>
                                           <!-- End of invoice -->

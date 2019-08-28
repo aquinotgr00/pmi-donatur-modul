@@ -13,20 +13,20 @@ class DonationEmailStatus extends Mailable
      /**
      * Create a new parameter.
      *
-     * @var mixed details
+     * @var mixed donation
      */
-    protected $detail;
+    protected $donation;
 
     /**
      * Create a new message instance.
      *
-     * @param array $detail
+     * @param array $donation
      *
      * @return void
      */
-    public function __construct($detail)
+    public function __construct($donation)
     {
-        $this->detail = $detail;
+        $this->donation = $donation;
     }
 
     /**
@@ -36,9 +36,31 @@ class DonationEmailStatus extends Mailable
      */
     public function build()
     {
-        return $this->view('donator::mail-status')
-                    ->with([
-                        'detail' => $this->detail
-                    ]);
+        $view ='donator::mail-status';
+        if ($this->donation->fundraising) {
+            switch ($this->donation->status) {
+                case '1':
+                    $view = 'donator::mail-donasi-dana-pending';
+                    break;
+                case '3':
+                    $view = 'donator::mail-donasi-dana-complete';
+                    break;
+            }
+        }else{
+            switch ($this->donation->status) {
+                case '1':
+                    $view = 'donator::mail-donasi-barang-pending';
+                    break;
+                case '3':
+                    $view = 'donator::mail-donasi-barang-complete';
+                    break;
+            }
+        }
+        if ($this->donation->status === '4') {
+            $view = 'donator::mail-donasi-rejected';
+        }
+        return $this->view($view)->with([
+            'donation' => $this->donation
+        ]);
     }
 }

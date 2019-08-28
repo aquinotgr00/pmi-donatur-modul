@@ -72,7 +72,7 @@
                                           <!-- Title -->
                                           <tr>
                                              <td style="font-family: 'Open Sans', sans-serif; font-size: 22px; color: #ED1C24; text-align:center; line-height: 30px;" st-title="fulltext-heading">
-                                                Hi Tegar
+                                                Hi {{ (isset($donation->name))? $donation->name : ''  }}
                                              </td>
                                           </tr>
                                           <!-- End of Title -->
@@ -97,7 +97,7 @@
                                           <tr>
                                              <td style="font-family: 'Open Sans', sans-serif; text-align:left; line-height: 30px;" st-content="fulltext-content">
                                                 <label style="font-size: 12px; font-weight: bold; color: #3E3E3E;">Judul:</label>
-                                                <p style="font-size: 12px; color: #3E3E3E; line-height: 20px;">Tsunami Selat Sunda: Korban tewas 430 orang, 7.202 terluka dan 23 orang hilang. Bantu dan Ringankan Beban Mereka</p>
+                                                <p style="font-size: 12px; color: #3E3E3E; line-height: 20px;">{{ (isset($donation->campaign->title))? $donation->campaign->title : ''  }}</p>
                                              </td>
                                           </tr>
                                           <!-- spacing -->
@@ -108,7 +108,7 @@
                                           <tr>
                                              <td style="font-family: 'Open Sans', sans-serif; text-align:left; line-height: 30px;" st-content="fulltext-content">
                                                 <label style="font-size: 12px; font-weight: bold; color: #3E3E3E;">Metode Transfer:</label>
-                                                <p style="font-size: 12px; color: #3E3E3E; line-height: 20px;">Manual Transfer</p>
+                                                <p style="font-size: 12px; color: #3E3E3E; line-height: 20px;">{{ (isset($donation->payment_method_text))? $donation->payment_method_text : ''  }}</p>
                                              </td>
                                           </tr>
                                           <!-- spacing -->
@@ -119,7 +119,7 @@
                                           <tr>
                                              <td style="font-family: 'Open Sans', sans-serif; text-align:left; line-height: 30px;" st-content="fulltext-content">
                                                 <label style="font-size: 12px; font-weight: bold; color: #3E3E3E;">Jumlah Donasi:</label>
-                                                <p style="font-size: 12px; color: #ED1C24; line-height: 20px; font-weight: bold">Rp 100.000</p>
+                                                <p style="font-size: 12px; color: #ED1C24; line-height: 20px; font-weight: bold">{{ (isset($donation->amount))? $donation->amount : ''  }}</p>
                                              </td>
                                           </tr>
                                           <!-- End of invoice -->
