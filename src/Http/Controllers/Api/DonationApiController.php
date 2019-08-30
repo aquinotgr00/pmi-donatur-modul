@@ -97,7 +97,7 @@ class DonationApiController extends Controller
             'message' => $message
         ];
 
-        $this->donations->sendEmailStatus($donation->email, $data);
+        $this->donations->sendEmailStatus($donation->email, $donation);
 
         return response()->success(['message' => 'Donations status successfully updated.']);
     }
@@ -175,7 +175,7 @@ class DonationApiController extends Controller
             'message' => 'Terima kasih sudah meng-upload bukti transfer, silahkan tunggu.'
         ];
 
-        $this->donations->sendEmailStatus($donation->email, $data);
+        $this->donations->sendEmailStatus($donation->email, $donation);
 
         $donation->update([
                     'image'  => $image,
@@ -220,7 +220,8 @@ class DonationApiController extends Controller
                 'status'  => config('donation.status.'.$request->status),
                 'message' => $message
             ];
-            $this->donations->sendEmailStatus($donation->email, $data);
+            
+            $this->donations->sendEmailStatus($donation->email, $donation);
             $donation->donator;
             $donation->campaign;
             $donation->campaign->getType;            

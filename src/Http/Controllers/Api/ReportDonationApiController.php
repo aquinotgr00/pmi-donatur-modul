@@ -34,6 +34,7 @@ class ReportDonationApiController extends Controller
             
             $query->where('fundraising', $request->input('f', 1));
         });
+        $donation = $donation->orderBy('created_at','DESC');
         return response()->success($donation->with('campaign.getType')->with('donator')->paginate());
     }
 
@@ -50,7 +51,7 @@ class ReportDonationApiController extends Controller
 
     private function handleStatus(Request $request, $donation)
     {
-        if ($request->has('st')) {
+        if ($request->has('st') && $request->st != 0) {
             $donation = $donation->where('status', $request->st);
         }
         return $donation;
@@ -108,14 +109,14 @@ class ReportDonationApiController extends Controller
     public function exportToExcel(Request $request)
     {
         if (class_exists('Excel')) {
+            $file_name = 'donasi_'.date('Y-m-d-h-i-s',time());
             if ($request->has('ids')) {
                 $multi_id = json_decode($request->ids);
-                //return Excel::download(new DonationExport($multi_id), 'export-donations.xlsx');
-                Excel::store(new DonationExport($multi_id), 'public/export-donations.xlsx');
+                Excel::store(new DonationExport($multi_id), "public/$file_name.xlsx");
             }else{
-                Excel::store(new DonationExport([]), 'public/export-donations.xlsx');
+                Excel::store(new DonationExport([]), "public/$file_name.xlsx");
             }
-            return response()->success(['url' => url('storage/export-donations.xlsx')]);
+            return response()->success(['url' => url("storage/$file_name.xlsx")]);
         }
     }
 
@@ -160,12 +161,13 @@ class ReportDonationApiController extends Controller
         $html = view('donator::table-donations',[
             'donations' => $donations
             ])->render();
-        
+        $file_name = $pdf_title.'_'.date('Y-m-d-h-i-s',time());
+
         PDF::SetTitle($pdf_title);
         PDF::AddPage();
         PDF::writeHTML($html, true, false, true, false, '');
-        PDF::Output(public_path('export-donations.pdf'),'f');
-        return response()->success(['url' => url('export-donations.pdf') ]);
+        PDF::Output(public_path("$file_name.pdf"),'f');
+        return response()->success(['url' => url("$file_name.pdf") ]);
     }
 
     public function handleMultipleId(Request $request, $donations)
