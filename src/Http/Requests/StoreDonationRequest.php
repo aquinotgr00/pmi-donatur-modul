@@ -37,7 +37,7 @@ class StoreDonationRequest extends FormRequest
             'name'           => 'required|string',
             'email'          => 'required|string|email',
             'phone'          => 'required|string',
-            'amount'         => 'required|numeric|min:10000',
+            'amount'         => 'sometimes|required|numeric|min:10000',
             'payment_method' => 'string',
             'pick_method'    => 'string',
             'anonym'         => 'boolean'

@@ -112,7 +112,7 @@ class DonatorApiController extends Controller
 
         // TODO: add custom user fields to config so that anyone could adjust
         $user  = $this->users->create($request->only(['name', 'email', 'password']));
-        $token = $user->createToken('Personal Access Token');
+        $token = $user->createToken('PMI');
         
         // add user id to request
         $request->merge([
@@ -120,7 +120,7 @@ class DonatorApiController extends Controller
         ]);
 
         // create donator
-        $this->donators->create($request->except(['email', 'password', 'url_action']));
+        $donator = $this->donators->create($request->except(['email', 'password', 'url_action']));
 
         // send email and token
         $data = [
@@ -129,7 +129,11 @@ class DonatorApiController extends Controller
         ];
         $this->donators->sendEmailAndToken($data);
         
-        return response()->success(['access_token' => $token->accessToken]);
+        return response()->success([
+            'access_token' => $token->accessToken,
+            'donator_id'=>$donator->id,
+            'volunteer_id'=>null
+        ]);
     }
     
     public function show($id)
@@ -157,7 +161,7 @@ class DonatorApiController extends Controller
             return response()->fail([ "message" => "Account does not exist" ], 401);
 
         $user        = $request->user();
-        $tokenResult = $user->createToken('Personal Access Token');
+        $tokenResult = $user->createToken('PMI');
         $token       = $tokenResult->token;
         if ($request->remember_me) {
             $token->expires_at = Carbon::now()->addWeeks(1);
@@ -236,7 +240,7 @@ class DonatorApiController extends Controller
 
         $user = $this->users->where('email', $tokenReset->email)->first();
         $this->users->where('email', $tokenReset->email)->update(['password' => bcrypt($request->password)]);
-        $token = $user->createToken('New Personal Access Token');
+        $token = $user->createToken('PMI');
         
         $data = [
             'email'   => $tokenReset->email,

@@ -276,20 +276,20 @@ class CampaignApiController extends Controller
             isset($campaign->getDonations)
             ) {
             $campaign->getType;
-        $campaign->getDonations;
-        return response()->success($campaign);
-    } else {
-        return response()->fail($campaign);
+            $campaign->getDonations;
+            return response()->success($campaign);
+        } else {
+            return response()->fail($campaign);
+        }
     }
-}
 
-public function toggle(Campaign $campaign,$toggleAttribute) {
-    $togglables = [
-    'visibility'=>'hidden',
-    'open-close'=>'closed'
-    ];
-    $campaign->{$togglables[$toggleAttribute]} = !$campaign->{$togglables[$toggleAttribute]};
-    $campaign->save();
-    return response()->success($campaign->load('getType'));
-}
+    public function toggle(Campaign $campaign,$toggleAttribute) {
+        $togglables = [
+            'visibility'=>'hidden',
+            'open-close'=>'closed'
+        ];
+        $campaign->{$togglables[$toggleAttribute]} = !$campaign->{$togglables[$toggleAttribute]};
+        $campaign->save();
+        return response()->success($campaign->load('getType'));
+    }
 }
