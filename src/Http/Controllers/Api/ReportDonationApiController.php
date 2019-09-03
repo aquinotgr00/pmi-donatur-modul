@@ -106,12 +106,41 @@ class ReportDonationApiController extends Controller
         }
     }
 
+    public function exportToPrint(Request $request,Donation $donations)
+    {
+        $donations = $this->handleDateRanges($request, $donations);
+
+        $donations = $this->handleStatus($request, $donations);
+
+        $donations = $this->handleSearchName($request, $donations);
+
+        $donations = $this->handleSearchCampaign($request, $donations);
+
+        $donations = $this->handleSort($request, $donations);
+
+        $donations = $this->handleMultipleId($request,$donations);
+                
+        $donations = $donations->whereHas('campaign', function ($query) use ($request) {
+            if ($request->has('t')) {
+                $query->where('type_id', $request->t);
+            } else {
+                $query->where('type_id', '<>', 3);
+            }
+            $query->where('fundraising', $request->input('f', 1));
+        });
+        $donations = $donations->get();
+
+        $html = view('donator::table-donations', compact('donations'))->render();
+
+        return response()->success(compact('html'));
+    }
+
     public function exportToExcel(Request $request)
     {
         if (class_exists('Excel')) {
             $file_name = 'donasi_'.date('Y-m-d-h-i-s',time());
-            if ($request->has('ids')) {
-                $multi_id = json_decode($request->ids);
+            if ($request->has('id')) {
+                $multi_id = json_decode($request->id);
                 Excel::store(new DonationExport($multi_id), "public/$file_name.xlsx");
             }else{
                 Excel::store(new DonationExport([]), "public/$file_name.xlsx");
@@ -139,14 +168,13 @@ class ReportDonationApiController extends Controller
             
             if ($request->has('t')) {
                 $query->where('type_id', $request->t);
-                
             } else {
                 $query->where('type_id', '<>', 3);
             }
 
-            
             $query->where('fundraising', $request->input('f', 1));
         });
+
         if ($request->has('t') && $request->t == 3) {
             $pdf_title .='Bulan Dana';
         }
@@ -172,9 +200,9 @@ class ReportDonationApiController extends Controller
 
     public function handleMultipleId(Request $request, $donations)
     {
-        if ($request->has('id')) {
-            $multi_id = json_decode($request->id);
-            $donations = $donations->whereIn('id',$multi_id);
+        if ($request->has('id') && !empty($request->id)) {
+            $multi_id   = json_decode($request->id);
+            $donations  = $donations->whereIn('id',$multi_id);
         }
         return $donations;
     }
