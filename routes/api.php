@@ -50,6 +50,8 @@ Route::group(['prefix'=>config('admin.prefix', 'admin'),'middleware' => 'auth:ad
     Route::get   ('reports/{id}'                , 'ReportDonationApiController@show'           )->name("report.show"            );
     Route::get   ('reports/export/excel'        , 'ReportDonationApiController@exportToExcel'  )->name('admin.list.export.excel');
     Route::get   ('reports/export/pdf'          , 'ReportDonationApiController@exportToPdf'    )->name('admin.list.export.pdf'  );
+    Route::get   ('reports/export/print'        , 'ReportDonationApiController@exportToPrint'  )->name('admin.list.export.print');
+
 });
 
 
