@@ -77,7 +77,7 @@ class DonationApiController extends Controller
         return response()->success($donations);
     }
 
-    public function updateStatus(Request $request, $donationId)
+    public function updateStatus(Request $request, Donation $donation)
     {
         $request->validate([
             'status' => 'required'
@@ -88,16 +88,18 @@ class DonationApiController extends Controller
         if ($request->status === 3)
             $message = 'Terima kasih atas donasi anda, status donasi anda telah kami terima.';
 
-        $donation = $this->donations->find($donationId);
+        $old_status = $donation->status;
 
-        $this->donations->updateStatus($donationId, $request->status);
+        $donation->updateStatus($donation->id, $request->status);
+
+        if (intval($old_status) !== intval($request->status)) {
+            $donation->sendEmailStatus($donation->email, $donation);
+        }
 
         $data = [
             'status'  => config('donation.status.'.$request->status),
             'message' => $message
         ];
-
-        $this->donations->sendEmailStatus($donation->email, $donation);
 
         return response()->success(['message' => 'Donations status successfully updated.']);
     }
@@ -113,13 +115,16 @@ class DonationApiController extends Controller
         // Make a unique code.
         $this->makeUniqueTransactionCode($request);
 
-        $request->request->add(['payment_method' => 1]);
-        $image = $this->donations->handleDonationImage($request->file('image_file'));
+        //$request->request->add(['payment_method' => 1]);
 
-        $request->merge([
-            'image' => $image
-        ]);
-
+        //$image = $this->donations->handleDonationImage($request->file('image_file'));
+        
+        if ($request->has('image_file')) {
+            $request->merge([
+                'image' => $request->image_file->store('donations','public')
+            ]);
+        }
+        
         $donation = $this->donations->create($request->all());
 
         $this->handleDonationItems($request->donation_items, $donation->id);
@@ -185,7 +190,7 @@ class DonationApiController extends Controller
         return response()->success(['message' => 'success upload file']);
     }
 
-    public function updateDetails(Request $request, $donationId)
+    public function updateDetails(Request $request, Donation $donation)
     {
         $request->validate([
             'status' => 'required',
@@ -193,9 +198,10 @@ class DonationApiController extends Controller
         ]);
 
         $message = 'Maaf donasi anda tidak diterima karena suatu alasan.';
-        $donation = $this->donations->find($donationId);
         
         if (!is_null($donation)) {
+            
+            $old_status = $donation->status;
 
             $donation->update($request->all());
 
@@ -221,7 +227,10 @@ class DonationApiController extends Controller
                 'message' => $message
             ];
             
-            $this->donations->sendEmailStatus($donation->email, $donation);
+            if (intval($old_status) !== intval($request->status)) {
+                $this->donations->sendEmailStatus($donation->email, $donation);
+            }
+
             $donation->donator;
             $donation->campaign;
             $donation->campaign->getType;            

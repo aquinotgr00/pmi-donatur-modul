@@ -25,7 +25,7 @@ Route::group(['as' => 'donations.'], function () {
         Route::post('/', 'DonationApiController@store')->name('app.create');
         Route::post('proof-upload'      , 'DonationApiController@proofUpload' )->name('app.proof.upload' );
         Route::get ('list/{campaignId}' , 'DonationApiController@index'        )->name('app.list'         );
-        Route::post('update-status/{donationId}' , 'DonationApiController@updateStatus'    )->name('update.status'      );
+        Route::post('update-status/{donation}' , 'DonationApiController@updateStatus'    )->name('update.status'      );
         Route::get ('list-by-donator/{id}'       , 'DonationApiController@listByDonator'   )->name('list.by.donator'    );
         Route::get ('list-by-range-date/{id}'    , 'DonationApiController@listByRangeDate' )->name('list.by.range.date' );
     });
@@ -33,7 +33,7 @@ Route::group(['as' => 'donations.'], function () {
     Route::group(['prefix' => 'admin/donations'], function () {
         Route::post('/', 'DonationApiController@store')->name('app.create');
         Route::get ('list-by-donator/{id}'          , 'DonationApiController@listByDonator'     )->name('list.by.donator'       );
-        Route::post('update-details/{donationId}'   , 'DonationApiController@updateDetails'     )->name('admin.update.details'  );
+        Route::post('update-details/{donation}'   , 'DonationApiController@updateDetails'     )->name('admin.update.details'  );
         Route::post('update-info/{donationId}'      , 'DonationApiController@updateInfo'        )->name('admin.update.info'     );
         Route::get ('list/{campaignId}'             , 'DonationApiController@index'              )->name('admin.list.campaignId' );            
     });
