@@ -9,6 +9,7 @@ use BajakLautMalaka\PmiDonatur\DonationItem;
 use BajakLautMalaka\PmiDonatur\Donator;
 use BajakLautMalaka\PmiDonatur\Campaign;
 use BajakLautMalaka\PmiDonatur\Http\Requests\StoreDonationRequest;
+use BajakLautMalaka\PmiDonatur\Http\Requests\UpdateDonationRequest;
 
 class DonationApiController extends Controller
 {
@@ -77,33 +78,6 @@ class DonationApiController extends Controller
         return response()->success($donations);
     }
 
-    public function updateStatus(Request $request, Donation $donation)
-    {
-        $request->validate([
-            'status' => 'required'
-        ]);
-
-        $message = 'Maaf donasi anda tidak diterima karena suatu alasan.';
-
-        if ($request->status === 3)
-            $message = 'Terima kasih atas donasi anda, status donasi anda telah kami terima.';
-
-        $old_status = $donation->status;
-
-        $donation->updateStatus($donation->id, $request->status);
-
-        if (intval($old_status) !== intval($request->status)) {
-            $donation->sendEmailStatus($donation->email, $donation);
-        }
-
-        $data = [
-            'status'  => config('donation.status.'.$request->status),
-            'message' => $message
-        ];
-
-        return response()->success(['message' => 'Donations status successfully updated.']);
-    }
-
     /**
      * Store donation data.
      *
@@ -115,10 +89,6 @@ class DonationApiController extends Controller
         // Make a unique code.
         $this->makeUniqueTransactionCode($request);
 
-        //$request->request->add(['payment_method' => 1]);
-
-        //$image = $this->donations->handleDonationImage($request->file('image_file'));
-        
         if ($request->has('image_file')) {
             $request->merge([
                 'image' => $request->image_file->store('donations','public')
@@ -190,103 +160,6 @@ class DonationApiController extends Controller
         return response()->success(['message' => 'success upload file']);
     }
 
-    public function updateDetails(Request $request, Donation $donation)
-    {
-        $request->validate([
-            'status' => 'required',
-            'payment_method' => 'required'
-        ]);
-
-        $message = 'Maaf donasi anda tidak diterima karena suatu alasan.';
-        
-        if (!is_null($donation)) {
-            
-            $old_status = $donation->status;
-
-            $donation->update($request->all());
-
-            if ($donation->status === 3 ){
-                
-                $message = 'Terima kasih atas donasi anda, status donasi anda telah kami terima.';
-                
-                $amount_real = 0;
-                
-                foreach ($donation->campaign->list_donators as $key => $value) {
-                    $amount_real += intval($value->amount);
-                }
-                
-                $campaign = Campaign::find($donation->campaign_id);
-                
-                $campaign->amount_real = $amount_real;
-                $campaign->save();
-                
-            } 
-
-            $data = [
-                'status'  => config('donation.status.'.$request->status),
-                'message' => $message
-            ];
-            
-            if (intval($old_status) !== intval($request->status)) {
-                $this->donations->sendEmailStatus($donation->email, $donation);
-            }
-
-            $donation->donator;
-            $donation->campaign;
-            $donation->campaign->getType;            
-            $donation->donationItems;
-            return response()->success($donation);
-        }else{
-            return response()->fail(['message' => 'Error! failed to update donations']);
-        }
-    }
-
-    public function updateInfo(Request $request, $donationId)
-    {
-        $request->validate([
-            'name' => 'required',
-            'email' => 'email',
-            'phone' => 'required'
-        ]);
-
-
-        $donator = Donator::firstOrCreate(
-            [
-                'phone'=> $request->phone 
-            ],
-            [
-                'name' => $request->name,
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'address' => $request->address,
-            ]
-        );
-
-        if ($request->has('address') && !empty($request->address)) {
-            if ($request->address != $donator->address ) {
-                $donator->update($request->only('address'));
-            }
-        }
-
-        $request->request->add(['donator_id' => $donator->id]);
-
-        $donation = $this->donations->find($donationId);
-        
-        if (!is_null($donation)) {
-            
-            $donation->update($request->except('address'));
-
-            $donation->donator;
-            $donation->campaign;
-            $donation->campaign->getType;
-            $donation->donationItems;
-
-            return response()->success($donation);
-        }else{
-            return response()->fail(['message' => 'Error! failed to update donations']);
-        }
-    }
-
     private function handleDateRanges(Request $request, $donations)
     {
         if (
@@ -300,5 +173,71 @@ class DonationApiController extends Controller
             }
         }
         return $donations;
+    }
+
+
+    public function update(UpdateDonationRequest $request, Donation $donation)
+    {
+        
+        $except = [];
+
+        if ($request->has('status')) {
+
+            $old_status = $donation->status;
+            
+            $donation->updateStatus($donation->id, $request->status);
+        
+            if (intval($old_status) !== intval($request->status)) {
+                
+                if ($donation->status === 3 ){
+                
+                    $amount_real = 0;
+
+                    foreach ($donation->campaign->list_donators as $key => $value) {
+                        $amount_real += intval($value->amount);
+                    }
+
+                    $campaign = Campaign::find($donation->campaign_id);
+                    $campaign->amount_real = $amount_real;
+                    $campaign->save();
+                }
+
+                $donation->sendEmailStatus($donation->email, $donation);
+            }
+
+            array_push($except, 'status');
+        }
+
+        if ($request->has('phone')) {
+            
+            $donator = Donator::firstOrCreate(
+                [
+                    'phone'=> $request->phone 
+                ],
+                [
+                    'name' => $request->name,
+                    'email' => $request->email,
+                    'phone' => $request->phone,
+                    'address' => $request->address,
+                ]
+            );
+
+            if ($request->has('address') && !empty($request->address)) {
+                
+                if ($request->address != $donator->address ) {
+                    $donator->update($request->only('address'));
+                }
+
+                array_push($except, 'address');
+            }
+
+            $request->request->add(['donator_id' => $donator->id]);
+        }
+        
+        $data = ($except)? $request->except($except) : $request->all();
+
+        $donation->update($data);
+
+        return response()->success($donation);
     }
 }
