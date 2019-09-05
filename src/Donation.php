@@ -25,7 +25,7 @@ class Donation extends Model
         'address','notes'
     ];
 
-    protected $appends = ['status_text','payment_method_text','pick_method_text'];
+    protected $appends = ['status_text','payment_method_text','pick_method_text','image_url'];
 
     /**
      * Update donation status
@@ -115,5 +115,11 @@ class Donation extends Model
         $id_pick  = $this->pick_method;
         $items    = config('donation.pick_method');
         return (isset($items[$id_pick]))? $items[$id_pick] : '';
+    }
+
+    public function getImageUrlAttribute()
+    {
+        $image_url = (filter_var($this->image, FILTER_VALIDATE_URL))? $this->image : url(Storage::url($this->image)); 
+        return $image_url;
     }
 }
