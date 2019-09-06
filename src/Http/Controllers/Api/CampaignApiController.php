@@ -155,22 +155,18 @@ class CampaignApiController extends Controller
             $finish_campaign    = date('Y-m-d', strtotime($request->finish_campaign));
 
             $request->merge([
-            'start_campaign' => $start_campaign,
-            'finish_campaign' => $finish_campaign,
+                'start_campaign' => $start_campaign,
+                'finish_campaign' => $finish_campaign,
             ]);
         }
 
-        $image      = $request->file('image_file');
-        $extension  = $image->getClientOriginalExtension();
-        $file_name  = $image->getFilename() . '.' . $extension;
-        Storage::disk('public')->put($file_name,  File::get($image));
-        $image_url = url('storage/' . $file_name);
+        $image      = $request->image_file->store('campaigns','public');
+        
+        $campaign   = new Campaign;
 
-        $campaign = new Campaign;
         $campaign->fill($request->input());
-        $campaign->image = $image_url;
-        $campaign->image_file_name = $file_name;
-        $campaign->admin_id = $request->user()->id;
+        $campaign->image       = $image;
+        $campaign->admin_id    = $request->user()->id;
         $campaign->save();
 
         if ($campaign->publish) {
@@ -219,24 +215,10 @@ class CampaignApiController extends Controller
             ]);
         }
 
-        
-
         $mustBroadcast = !$campaign->publish && $request->publish;
 
         if ($request->has('image_file')) {
-            $image      = $request->file('image_file');
-            $extension  = $image->getClientOriginalExtension();
-            $file_name  = $image->getFilename() . '.' . $extension;
-
-            Storage::disk('public')->put($file_name,  File::get($image));
-
-            if (file_exists(storage_path('app/public/' . $campaign->image_file_name))) {
-                unlink(storage_path('app/public/' . $campaign->image_file_name));
-            }
-
-            $image_url = url('storage/' . $file_name);
-            $campaign->image = $image_url;
-            $campaign->image_file_name = $file_name;
+            $campaign->image = $request->image_file->store('campaigns','public');
         }
 
         $campaign->admin_id = $request->user()->id;
@@ -263,33 +245,24 @@ class CampaignApiController extends Controller
         return response()->success($campaign);
     }
 
-    public function updateFinishCampaign(int $id, UpdateFinishCampaignRequest $request)
+    public function updateFinishCampaign(Campaign $campaign, UpdateFinishCampaignRequest $request)
     {
-        $finish_campaign    = date('Y-m-d', strtotime("+1 days",strtotime($request->finish_campaign)));
+        $finish_campaign = \Carbon\Carbon::parse($request->finish_campaign)->format('Y-m-d h:i:s');
+        
+        $campaign->update([
+            'finish_campaign' => $finish_campaign
+        ]);
 
-        $data = (object) [
-        'finish_campaign' => $finish_campaign
-        ];
-        $campaign = Campaign::updateFinishCampaign($data, $id);
-        if (
-            isset($campaign->getType) &&
-            isset($campaign->getDonations)
-            ) {
-            $campaign->getType;
-        $campaign->getDonations;
         return response()->success($campaign);
-    } else {
-        return response()->fail($campaign);
     }
-}
 
-public function toggle(Campaign $campaign,$toggleAttribute) {
-    $togglables = [
-    'visibility'=>'hidden',
-    'open-close'=>'closed'
-    ];
-    $campaign->{$togglables[$toggleAttribute]} = !$campaign->{$togglables[$toggleAttribute]};
-    $campaign->save();
-    return response()->success($campaign->load('getType'));
-}
+    public function toggle(Campaign $campaign,$toggleAttribute) {
+        $togglables = [
+            'visibility'=>'hidden',
+            'open-close'=>'closed'
+        ];
+        $campaign->{$togglables[$toggleAttribute]} = !$campaign->{$togglables[$toggleAttribute]};
+        $campaign->save();
+        return response()->success($campaign->load('getType'));
+    }
 }

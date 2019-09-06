@@ -7,23 +7,31 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class Campaign extends Model
 {
     use SoftDeletes;
     protected $fillable = [
-        'admin_id', 'type_id', 'title','image_file_name',
-        'image', 'description', 'amount_goal',
-        'start_campaign', 'finish_campaign','fundraising',
-        'publish'
+    'admin_id', 
+    'type_id', 
+    'title',
+    'image_file_name',
+    'image', 
+    'description', 
+    'amount_goal',
+    'start_campaign', 
+    'finish_campaign',
+    'fundraising',
+    'publish'
     ];
     
     protected $dates = [
-        'start_campaign',
-        'finish_campaign'
+    'start_campaign',
+    'finish_campaign'
     ];
     
-    protected $appends  = ['amount_donation','ranges_donation', 'formatted_title','image_encode','list_donators'];
+    protected $appends  = ['amount_donation','ranges_donation', 'formatted_title','list_donators','image_url'];
     
     /**
      * Global Scope - sort by latest
@@ -77,9 +85,9 @@ class Campaign extends Model
     public static function getByPublished(bool $status, int $paginate)
     {
         return static::where('publish', $status)
-            ->with('getType')
-            ->with('getDonations')
-            ->paginate($paginate);
+        ->with('getType')
+        ->with('getDonations')
+        ->paginate($paginate);
     }
     /**
      * update finish campaign
@@ -100,21 +108,7 @@ class Campaign extends Model
         }
         return false;
     }
-    /**
-     * get by keyword
-     *
-     * @param string $keyword
-     * @param integer $paginate
-     * @return void
-     */
-    public static function getByKeyword(string $keyword,int $paginate)
-    {
-        return static::where('title', 'like', '%' . $keyword . '%')
-            ->orWhere('description', 'like', '%' . $keyword . '%')
-            ->with('getType')
-            ->with('getDonations')
-            ->paginate($paginate);
-    }
+
     /**
      * update status published
      *
@@ -156,24 +150,6 @@ class Campaign extends Model
         return $this->belongsTo('\BajakLautMalaka\PmiAdmin\Admin');
     }
 
-    public function getImageEncodeAttribute()
-    {
-
-        $base64_encode  = '';
-        
-        if (file_exists(public_path('storage/'.$this->image_file_name)) ) {
-            
-            $split          = explode('.', $this->image_file_name);
-            
-            if (isset($split[1])) {
-                $ext    = $split[1];
-                $base64_encode ="data:image/$ext;base64,";
-                $base64_encode .= base64_encode(file_get_contents(public_path('storage/'.$this->image_file_name)));
-            }
-        }
-        return $base64_encode;
-    }
-
     public function getListDonatorsAttribute()
     {
         $donations = [];
@@ -181,5 +157,11 @@ class Campaign extends Model
             $donations = $this->getDonations->where('status',3);
         }
         return $donations;
+    }
+
+    public function getImageUrlAttribute()
+    {
+        $image_url = (filter_var($this->image, FILTER_VALIDATE_URL))? $this->image : asset(Storage::url($this->image)); 
+        return $image_url;
     }
 }

@@ -10,6 +10,7 @@ use BajakLautMalaka\PmiDonatur\Donator;
 use BajakLautMalaka\PmiDonatur\Campaign;
 use BajakLautMalaka\PmiDonatur\Http\Requests\StoreDonationRequest;
 use BajakLautMalaka\PmiDonatur\Http\Requests\UpdateDonationRequest;
+use BajakLautMalaka\PmiDonatur\Jobs\SendEmailStatus;
 
 class DonationApiController extends Controller
 {
@@ -95,22 +96,38 @@ class DonationApiController extends Controller
             ]);
         }
         
+        if (auth('admin')->user()) {
+            //only admin make manual transaction
+            $request->merge([
+                'manual_transaction' => 1,
+                'status' => 3
+            ]);
+        }
+
+        $this->makeInvoiceID($request);
+            
         $donation = $this->donations->create($request->all());
 
         $this->handleDonationItems($request->donation_items, $donation->id);
 
-        $data = [
-            'status'  => 'Pending',
-            'message' => 'Terima kasih sudah berbuat baik silahkan transfer dan upload disini.'
-        ];
-
-        $this->donations->sendEmailStatus($donation->email, $donation);
+        event(new SendEmailStatus($donation->email, $donation));
 
         $response = [
             'message' => 'Donations has been made.',
             'donation' => $donation
         ];
         return response()->success($response);
+    }
+
+    private function makeInvoiceID(Request $request){
+        $next_id        = Donation::getNextID();
+        $invoice_id     = str_pad($next_id, 5, "0", STR_PAD_LEFT);
+        $invoice_parts  = array('INV', date('Y-m-d'), $invoice_id);
+        $invoice        = implode('-', $invoice_parts);
+
+        $request->merge([
+            'invoice_id' => $invoice
+        ]);
     }
 
     private function makeUniqueTransactionCode(StoreDonationRequest $request)
@@ -143,19 +160,14 @@ class DonationApiController extends Controller
         if (!$donation)
             return response()->fail(['message' => 'Donation not found.']);
 
-        $image = $this->donations->handleDonationImage($request->file('image'));
-        
-        $data = [
-            'status'  => 'Waiting',
-            'message' => 'Terima kasih sudah meng-upload bukti transfer, silahkan tunggu.'
-        ];
+        $image = $request->image->store('donations','public');
 
-        $this->donations->sendEmailStatus($donation->email, $donation);
+        event(new SendEmailStatus($donation->email, $donation));
 
         $donation->update([
-                    'image'  => $image,
-                    'status' => 2
-                ]);
+            'image'  => $image,
+            'status' => 2
+        ]);
 
         return response()->success(['message' => 'success upload file']);
     }
@@ -201,8 +213,8 @@ class DonationApiController extends Controller
                     $campaign->amount_real = $amount_real;
                     $campaign->save();
                 }
-
-                $donation->sendEmailStatus($donation->email, $donation);
+                
+                event(new SendEmailStatus($donation->email, $donation));
             }
 
             array_push($except, 'status');
@@ -217,26 +229,39 @@ class DonationApiController extends Controller
                 [
                     'name' => $request->name,
                     'email' => $request->email,
-                    'phone' => $request->phone,
-                    'address' => $request->address,
+                    'phone' => $request->phone
                 ]
             );
 
-            if ($request->has('address') && !empty($request->address)) {
+            if ($request->has('address')) {
                 
                 if ($request->address != $donator->address ) {
                     $donator->update($request->only('address'));
                 }
 
-                array_push($except, 'address');
             }
 
-            $request->request->add(['donator_id' => $donator->id]);
+            $request->merge([
+                'donator_id' => $donator->id
+            ]);
+
+            array_push($except, 'address');
+
         }
         
         $data = ($except)? $request->except($except) : $request->all();
 
         $donation->update($data);
+        
+        if (isset($donation->donator)) {
+            $donation->donator;
+        }
+        
+        if (isset($donation->campaign)) {
+            if (isset($donation->campaign->getType)) {
+                $donation->campaign->getType;
+            }
+        }
 
         return response()->success($donation);
     }
