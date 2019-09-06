@@ -159,7 +159,7 @@ class DonationApiController extends Controller
 
         if (!$donation)
             return response()->fail(['message' => 'Donation not found.']);
-
+        
         $image = $request->image->store('donations','public');
 
         event(new SendEmailStatus($donation->email, $donation));
@@ -169,7 +169,7 @@ class DonationApiController extends Controller
             'status' => 2
         ]);
 
-        return response()->success(['message' => 'success upload file']);
+        return response()->success($data);
     }
 
     private function handleDateRanges(Request $request, $donations)
