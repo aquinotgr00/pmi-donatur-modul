@@ -71,28 +71,6 @@ class Donation extends Model
     {
         dispatch(new SendEmailStatus($email, $data));
     }
-    
-    public function handleDonationImage($image)
-    {
-        $image_url = null;
-        if ($image) {
-            $extension  = $image->getClientOriginalExtension();
-            $file_name  = $image->getFilename() . '.' . $extension;
-
-            $path = public_path('storage/donation-image/'.$file_name);
-
-            //Resize image here
-            $img = Image::make($image)->resize(450, 350, function($constraint) {
-                $constraint->aspectRatio();
-            });
-            
-            $img->save($path);
-            
-            $image_url = url('storage/donation-image/'.$file_name);
-        }
-
-        return $image_url;
-    }
 
     public function getStatusTextAttribute()
     {
