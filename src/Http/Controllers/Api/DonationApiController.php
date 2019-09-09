@@ -124,9 +124,9 @@ class DonationApiController extends Controller
     {
         if($items) {
            foreach ($items as $item) {
-                $itemArr = (array) json_decode($item);
-                $itemArr['donation_id'] = $id;
-                $this->donation_items->create($itemArr);
+                // $itemArr = (array) json_decode($item);
+                $item['donation_id'] = $id;
+                $this->donation_items->create($item);
             }
         }
     }
