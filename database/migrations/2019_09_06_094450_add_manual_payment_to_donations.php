@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddManualTransactionToDonations extends Migration
+class AddManualPaymentToDonations extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,9 @@ class AddManualTransactionToDonations extends Migration
      */
     public function up()
     {
-        if (!Schema::hasColumn('donations', 'manual_transaction')) {
+        if (!Schema::hasColumn('donations', 'manual_payment')) {
              Schema::table('donations', function (Blueprint $table) {                
-                $table->boolean('manual_transaction')->nullable();
+                $table->boolean('manual_payment')->nullable();
             });
         }
     }
@@ -27,9 +27,9 @@ class AddManualTransactionToDonations extends Migration
      */
     public function down()
     {
-        if (Schema::hasColumn('donations', 'manual_transaction')) {
+        if (Schema::hasColumn('donations', 'manual_payment')) {
             Schema::table('donations', function (Blueprint $table) {
-                $table->dropColumn('manual_transaction');
+                $table->dropColumn('manual_payment');
             });
         }
     }

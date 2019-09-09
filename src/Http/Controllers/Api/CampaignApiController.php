@@ -159,13 +159,15 @@ class CampaignApiController extends Controller
                 'finish_campaign' => $finish_campaign,
             ]);
         }
-
-        $image      = $request->image_file->store('campaigns','public');
         
         $campaign   = new Campaign;
-
         $campaign->fill($request->input());
-        $campaign->image       = $image;
+
+        if ($request->hasFile('image_file')) {
+            $image              = $request->image_file->store('campaigns','public');
+            $campaign->image    = $image;
+        }
+
         $campaign->admin_id    = $request->user()->id;
         $campaign->save();
 
@@ -217,7 +219,7 @@ class CampaignApiController extends Controller
 
         $mustBroadcast = !$campaign->publish && $request->publish;
 
-        if ($request->has('image_file')) {
+        if ($request->hasFile('image_file')) {
             $campaign->image = $request->image_file->store('campaigns','public');
         }
 

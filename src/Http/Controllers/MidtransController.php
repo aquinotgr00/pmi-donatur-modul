@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use BajakLautMalaka\PmiDonatur\Donation;
 use BajakLautMalaka\PmiDonatur\Campaign;
+use BajakLautMalaka\PmiDonatur\Events\PaymentCompleted;
+use BajakLautMalaka\PmiDonatur\Events\PaymentExpired;
 
 class MidtransController extends Controller
 {   
@@ -39,37 +41,15 @@ class MidtransController extends Controller
     public function notification(Request $request) {
 
         $result     = $request->json()->all();
-        
         $donation   = $this->donation->find($result['order_id']);
         
-        if (!is_null($donation)) {
+        if (isset($result['transaction_status'])) {
             switch ($result['transaction_status']) {
                 case 'settlement':
-
-                $donation->update([
-                    'status' => 3,
-                    'manual_transaction' => 0
-                ]);
-                $campaign       = Campaign::find($donation->campaign_id);
-
-                // increment amount_real campaign is fundraising true
-                if (!is_null($campaign) && ($campaign->fundraising)) { 
-                    
-                    $amount_real    = intval($result['gross_amount']);
-                    $amount_real    += intval($campaign->amount_real); 
-                    $campaign->amount_real = $amount_real;
-                    $campaign->save();
-                    
-                }
+                event(new PaymentCompleted($donation));
                 break;
-
                 case 'expire':
-
-                $donation->update([
-                    'status' => 4,
-                    'manual_transaction' => 0
-                ]);                    
-
+                event(new PaymentExpired($donation));
                 break;
             }
         }

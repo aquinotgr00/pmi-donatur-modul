@@ -25,7 +25,6 @@ class Donation extends Model
         'donator_id', 
         'amount', 
         'pick_method',
-        'payment_method', 
         'status', 
         'guest', 
         'anonym',
@@ -34,7 +33,7 @@ class Donation extends Model
         'invoice_id',
         'address',
         'notes',
-        'manual_transaction'
+        'manual_payment'
     ];
 
     protected $appends = ['status_text','payment_method_text','pick_method_text','image_url'];
@@ -81,8 +80,8 @@ class Donation extends Model
 
     public function getPaymentMethodTextAttribute()
     {
-        if (isset($this->manual_transaction)) {
-            return ($this->manual_transaction)? 'Manual Transfer' : 'Otomatis Transfer';
+        if (isset($this->manual_payment)) {
+            return ($this->manual_payment)? 'Manual Transfer' : 'Otomatis Transfer';
         }
     }
 
@@ -95,8 +94,7 @@ class Donation extends Model
 
     public function getImageUrlAttribute()
     {
-        $image_url = (filter_var($this->image, FILTER_VALIDATE_URL))? $this->image : url(Storage::url($this->image)); 
-        return $image_url;
+        return asset(Storage::url($this->image)); 
     }
 
     public static function getNextID()

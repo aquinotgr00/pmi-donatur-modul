@@ -10,7 +10,8 @@ use BajakLautMalaka\PmiDonatur\Donator;
 use BajakLautMalaka\PmiDonatur\Campaign;
 use BajakLautMalaka\PmiDonatur\Http\Requests\StoreDonationRequest;
 use BajakLautMalaka\PmiDonatur\Http\Requests\UpdateDonationRequest;
-use BajakLautMalaka\PmiDonatur\Jobs\SendEmailStatus;
+use BajakLautMalaka\PmiDonatur\Events\DonationSubmitted;
+use BajakLautMalaka\PmiDonatur\Events\PaymentCompleted;
 
 class DonationApiController extends Controller
 {
@@ -90,7 +91,7 @@ class DonationApiController extends Controller
         // Make a unique code.
         $this->makeUniqueTransactionCode($request);
 
-        if ($request->has('image_file')) {
+        if ($request->hasFile('image_file')) {
             $request->merge([
                 'image' => $request->image_file->store('donations','public')
             ]);
@@ -99,7 +100,7 @@ class DonationApiController extends Controller
         if (auth('admin')->user()) {
             //only admin make manual transaction
             $request->merge([
-                'manual_transaction' => 1,
+                'manual_payment' => 1,
                 'status' => 3
             ]);
         }
@@ -109,13 +110,18 @@ class DonationApiController extends Controller
         $donation = $this->donations->create($request->all());
 
         $this->handleDonationItems($request->donation_items, $donation->id);
-
-        event(new SendEmailStatus($donation->email, $donation));
+        
+        if (auth('admin')->user()) {
+            event(new PaymentCompleted($donation));
+        }else{
+            event(new DonationSubmitted($donation));
+        }
 
         $response = [
             'message' => 'Donations has been made.',
             'donation' => $donation
         ];
+
         return response()->success($response);
     }
 
@@ -161,9 +167,7 @@ class DonationApiController extends Controller
             return response()->fail(['message' => 'Donation not found.']);
         
         $image = $request->image->store('donations','public');
-
-        event(new SendEmailStatus($donation->email, $donation));
-
+        
         $donation->update([
             'image'  => $image,
             'status' => 2
@@ -213,8 +217,6 @@ class DonationApiController extends Controller
                     $campaign->amount_real = $amount_real;
                     $campaign->save();
                 }
-                
-                event(new SendEmailStatus($donation->email, $donation));
             }
 
             array_push($except, 'status');
