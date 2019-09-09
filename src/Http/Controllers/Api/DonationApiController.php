@@ -108,8 +108,10 @@ class DonationApiController extends Controller
         $this->makeInvoiceID($request);
             
         $donation = $this->donations->create($request->all());
-
-        $this->handleDonationItems($request->donation_items, $donation->id);
+        
+        if ($request->has('donation_items')) {
+            $donation->donationItems()->createMany($request->donation_items);
+        }
         
         if (auth('admin')->user()) {
             event(new PaymentCompleted($donation));
@@ -141,17 +143,6 @@ class DonationApiController extends Controller
         $request->merge([
             'amount' => $request->amount + rand(1, 99)
         ]);
-    }
-
-    private function handleDonationItems($items, $id)
-    {
-        if($items) {
-           foreach ($items as $item) {
-                $itemArr = (array) json_decode($item);
-                $itemArr['donation_id'] = $id;
-                $this->donation_items->create($itemArr);
-            }
-        }
     }
 
     public function proofUpload(Request $request)
