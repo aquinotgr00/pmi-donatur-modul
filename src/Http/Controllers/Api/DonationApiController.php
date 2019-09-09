@@ -97,7 +97,9 @@ class DonationApiController extends Controller
         
         $donation = $this->donations->create($request->all());
 
-        $this->handleDonationItems($request->donation_items, $donation->id);
+        if ($request->has('donation_items')) {
+            $donation->donationItems()->createMany($request->donation_items);
+        }
 
         $data = [
             'status'  => 'Pending',
@@ -118,17 +120,6 @@ class DonationApiController extends Controller
         $request->merge([
             'amount' => $request->amount + rand(1, 99)
         ]);
-    }
-
-    private function handleDonationItems($items, $id)
-    {
-        if($items) {
-           foreach ($items as $item) {
-                // $itemArr = (array) json_decode($item);
-                $item['donation_id'] = $id;
-                $this->donation_items->create($item);
-            }
-        }
     }
 
     public function proofUpload(Request $request)
