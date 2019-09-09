@@ -18,11 +18,22 @@ class Donation extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'phone', 'campaign_id',
-        'donator_id', 'amount', 'pick_method',
-        'payment_method', 'status', 'guest', 'anonym',
-        'image', 'admin_id','invoice_id',
-        'address','notes'
+        'name', 
+        'email', 
+        'phone', 
+        'campaign_id',
+        'donator_id', 
+        'amount', 
+        'pick_method',
+        'status', 
+        'guest', 
+        'anonym',
+        'image', 
+        'admin_id',
+        'invoice_id',
+        'address',
+        'notes',
+        'manual_payment'
     ];
 
     protected $appends = ['status_text','payment_method_text','pick_method_text','image_url'];
@@ -60,40 +71,6 @@ class Donation extends Model
         }
     }
     
-    /**
-     * Send email to inform donator/user about their donation status.
-     *
-     * @param  array  $data
-     *
-     * @return void
-     */
-    public function sendEmailStatus($email, $data)
-    {
-        dispatch(new SendEmailStatus($email, $data));
-    }
-    
-    public function handleDonationImage($image)
-    {
-        $image_url = null;
-        if ($image) {
-            $extension  = $image->getClientOriginalExtension();
-            $file_name  = $image->getFilename() . '.' . $extension;
-
-            $path = public_path('storage/donation-image/'.$file_name);
-
-            //Resize image here
-            $img = Image::make($image)->resize(450, 350, function($constraint) {
-                $constraint->aspectRatio();
-            });
-            
-            $img->save($path);
-            
-            $image_url = url('storage/donation-image/'.$file_name);
-        }
-
-        return $image_url;
-    }
-
     public function getStatusTextAttribute()
     {
         $id_status  = $this->status;
@@ -103,11 +80,9 @@ class Donation extends Model
 
     public function getPaymentMethodTextAttribute()
     {
-        
-        $id_payment  = $this->payment_method;
-        $items       = config('donation.payment_method');
-        return (isset($items[$id_payment]))? $items[$id_payment] : '';
-        
+        if (isset($this->manual_payment)) {
+            return ($this->manual_payment)? 'Manual Transfer' : 'Otomatis Transfer';
+        }
     }
 
     public function getPickMethodTextAttribute()
@@ -119,7 +94,13 @@ class Donation extends Model
 
     public function getImageUrlAttribute()
     {
-        $image_url = (filter_var($this->image, FILTER_VALIDATE_URL))? $this->image : url(Storage::url($this->image)); 
-        return $image_url;
+        return asset(Storage::url($this->image)); 
+    }
+
+    public static function getNextID()
+    {
+        $nextId = static::whereDate('created_at',\Carbon\Carbon::today())->count();
+        ++$nextId;
+        return $nextId;
     }
 }
