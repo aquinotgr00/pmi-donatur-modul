@@ -54,7 +54,7 @@ class Campaign extends Model
     public function getDonations()
     {
         if (class_exists('\BajakLautMalaka\PmiDonatur\Donation')) {
-            return $this->hasMany('\BajakLautMalaka\PmiDonatur\Donation', 'campaign_id', 'id');
+            return $this->hasMany('\BajakLautMalaka\PmiDonatur\Donation', 'campaign_id', 'id')->orderBy('created_at', 'DESC');
         }
         return null;
     }
