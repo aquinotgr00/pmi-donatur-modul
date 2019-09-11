@@ -160,16 +160,12 @@ class CampaignApiController extends Controller
             ]);
         }
 
-        $image      = $request->file('image_file');
-        $extension  = $image->getClientOriginalExtension();
-        $file_name  = $image->getFilename() . '.' . $extension;
-        Storage::disk('public')->put($file_name,  File::get($image));
-        $image_url = url('storage/' . $file_name);
+        $image_url = $request->image_file->store('campaigns', 'public');
 
         $campaign = new Campaign;
         $campaign->fill($request->input());
         $campaign->image = $image_url;
-        $campaign->image_file_name = $file_name;
+        // $campaign->image_file_name = $file_name;
         $campaign->admin_id = $request->user()->id;
         $campaign->save();
 

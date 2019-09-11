@@ -71,22 +71,6 @@ class Donator extends Model
         return $this->hasMany('BajakLautMalaka\PmiDonatur\Donation')->orderBy('created_at', 'DESC');
     }
 
-    public function handleDonatorPicture($image)
-    {
-        $image_url = null;
-        if ($image) {
-            $extension  = $image->getClientOriginalExtension();
-            $file_name  = $image->getFilename() . '.' . $extension;
-            $folder     = 'donator-picture';
-
-            Storage::disk('public')->put($folder.'/'.$file_name, File::get($image));
-
-            $image_url = url('storage/'.$folder.'/'.$file_name);
-        }
-
-        return $image_url;
-    }
-    
     /**
      * Sending email and access token to login / verification
      *
