@@ -37,6 +37,10 @@ class StoreDonationRequest extends FormRequest
             'name'           => 'required|string',
             'email'          => 'required|string|email',
             'phone'          => 'required|string',
+            'amount'         =>  [
+                'numeric',
+                Rule::requiredIf($this->input('fundraising') == 1)
+            ],
             'payment_method' => 'string',
             'pick_method'    => 'string',
             'anonym'         => 'boolean'

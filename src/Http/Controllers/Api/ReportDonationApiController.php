@@ -13,29 +13,22 @@ class ReportDonationApiController extends Controller
 {
     public function index(Request $request, Donation $donation)
     {
-
         $donation = $this->handleDateRanges($request, $donation);
-
         $donation = $this->handleStatus($request, $donation);
-
         $donation = $this->handleSearchName($request, $donation);
-
         $donation = $this->handleSearchCampaign($request, $donation);
-
         $donation = $this->handleSort($request, $donation);
-				
         $donation = $donation->whereHas('campaign', function ($query) use ($request) {
-            
             if ($request->has('t')) {
                 $query->where('type_id', $request->t);
             } else {
                 $query->where('type_id', '<>', 3);
             }
-            
             $query->where('fundraising', $request->input('f', 1));
         });
         $donation = $donation->orderBy('created_at','DESC');
         return response()->success($donation->with('campaign.getType')->with('donator')->paginate());
+
     }
 
     private function handleDateRanges(Request $request, $donation)

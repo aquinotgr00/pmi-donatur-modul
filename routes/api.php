@@ -43,7 +43,7 @@ Route::group(['as' => 'donations.'], function () {
 Route::group(['prefix'=>config('admin.prefix', 'admin'),'middleware' => 'auth:admin'], function () {
     Route::apiResource('campaigns', 'CampaignApiController');
     
-    Route::post  ('campaigns/update/finish/{id}' , 'CampaignApiController@updateFinishCampaign' )->name("campaigns.update.finish" );
+    Route::post  ('campaigns/update/finish/{campaign}' , 'CampaignApiController@updateFinishCampaign' )->name("campaigns.update.finish" );
     Route::put   ('campaigns/{campaign}/toggle/{togglableAttribute}','CampaignApiController@toggle');
     Route::get   ('reports'                     , 'ReportDonationApiController@index'          )->name("report.index"           );
     Route::get   ('reports/{id}'                , 'ReportDonationApiController@show'           )->name("report.show"            );

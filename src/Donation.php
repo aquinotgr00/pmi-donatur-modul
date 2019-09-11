@@ -18,11 +18,22 @@ class Donation extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'phone', 'campaign_id',
-        'donator_id', 'amount', 'pick_method',
-        'payment_method', 'status', 'guest', 'anonym',
-        'image', 'admin_id','invoice_id',
-        'address','notes'
+        'name', 
+        'email', 
+        'phone', 
+        'campaign_id',
+        'donator_id', 
+        'amount', 
+        'pick_method',
+        'status', 
+        'guest', 
+        'anonym',
+        'image', 
+        'admin_id',
+        'invoice_id',
+        'address',
+        'notes',
+        'manual_payment'
     ];
 
     protected $appends = ['status_text','payment_method_text','pick_method_text','image_url'];
@@ -60,18 +71,6 @@ class Donation extends Model
         }
     }
     
-    /**
-     * Send email to inform donator/user about their donation status.
-     *
-     * @param  array  $data
-     *
-     * @return void
-     */
-    public function sendEmailStatus($email, $data)
-    {
-        dispatch(new SendEmailStatus($email, $data));
-    }
-
     public function getStatusTextAttribute()
     {
         $id_status  = $this->status;
@@ -81,11 +80,9 @@ class Donation extends Model
 
     public function getPaymentMethodTextAttribute()
     {
-        
-        $id_payment  = $this->payment_method;
-        $items       = config('donation.payment_method');
-        return (isset($items[$id_payment]))? $items[$id_payment] : '';
-        
+        if (isset($this->manual_payment)) {
+            return ($this->manual_payment)? 'Manual Transfer' : 'Otomatis Transfer';
+        }
     }
 
     public function getPickMethodTextAttribute()
@@ -97,7 +94,13 @@ class Donation extends Model
 
     public function getImageUrlAttribute()
     {
-        $image_url = (filter_var($this->image, FILTER_VALIDATE_URL))? $this->image : url(Storage::url($this->image)); 
-        return $image_url;
+        return asset(Storage::url($this->image)); 
+    }
+
+    public static function getNextID()
+    {
+        $nextId = static::whereDate('created_at',\Carbon\Carbon::today())->count();
+        ++$nextId;
+        return $nextId;
     }
 }
