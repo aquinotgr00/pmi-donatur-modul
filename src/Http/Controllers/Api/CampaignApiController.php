@@ -180,18 +180,17 @@ class CampaignApiController extends Controller
     /**
      * get details campaign
      *
-     * @param integer $id
+     * @param \BajakLautMalaka\PmiDonatur\Campaign $campaign
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show(int $id)
+    public function show(Campaign $campaign)
     {
-        $campaign = Campaign::with('getType')->find($id);
+        $campaign->getType;
         
         if (!is_null($campaign)) {
             return response()->success($campaign);
-        } else {
-            return response()->fail($campaign);
         }
+        return response()->fail($campaign);
     }
 
     /**

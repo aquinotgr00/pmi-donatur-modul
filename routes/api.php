@@ -55,4 +55,4 @@ Route::group(['prefix'=>config('admin.prefix', 'admin'),'middleware' => 'auth:ad
 
 
 Route::get('app/campaigns'     , 'CampaignApiController@index')->name("campaigns.app.index");
-Route::get('app/campaigns/{id}', 'CampaignApiController@show' )->name("campaigns.app.show" );
+Route::get('app/campaigns/{campaign}', 'CampaignApiController@show' )->name("campaigns.app.show" );

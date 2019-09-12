@@ -104,8 +104,7 @@ class DonatorApiController extends Controller
             'password' => bcrypt($request->password)
         ]);
 
-        // handle image
-        $image = $this->donators->handleDonatorPicture($request->file('image_file'));
+        $image = $request->image_file->store('donator-picture', 'public');
         $request->request->add([
             'image' => $image
         ]);
@@ -276,8 +275,7 @@ class DonatorApiController extends Controller
             'message' => 'Donator not found.'
         ];
 
-        // handle image
-        $image   = $this->donators->handleDonatorPicture($request->file('image'));
+        $image = $request->image->store('donator-picture', 'public');
         $request = new Request($request->all());
         $request->merge([
             'image' => $image
