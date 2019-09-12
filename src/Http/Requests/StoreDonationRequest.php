@@ -24,7 +24,7 @@ class StoreDonationRequest extends FormRequest
      */
     public function rules()
     {
-        $rules = [
+        return [
             'campaign_id'=>[
                 'required',
                 Rule::exists('campaigns','id')->where(function ($query) {
@@ -45,10 +45,6 @@ class StoreDonationRequest extends FormRequest
             'pick_method'    => 'string',
             'anonym'         => 'boolean'
         ];
-        if ($this->has('amount')) {
-            $rules['amount'] = 'required|numeric|min:10000';
-        }
-        return $rules;
     }
 
    /**
