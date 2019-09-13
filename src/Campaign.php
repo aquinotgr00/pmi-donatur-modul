@@ -64,7 +64,8 @@ class Campaign extends Model
         if (class_exists('\BajakLautMalaka\PmiDonatur\Donation')) {
             return $this->hasMany('\BajakLautMalaka\PmiDonatur\Donation', 'campaign_id', 'id')
                 ->where('status', 3)
-                ->orderBy('created_at', 'DESC');
+                ->orderBy('created_at', 'DESC')
+                ->take(5);
         }
         return null;
     }
