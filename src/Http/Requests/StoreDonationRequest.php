@@ -34,11 +34,12 @@ class StoreDonationRequest extends FormRequest
                     ->where('publish', 1);
                 })
             ],
-            'name'           => 'required|string',
-            'email'          => 'required|string|email',
-            'phone'          => 'required|string',
-            'amount'         =>  [
+            'name'=>'required|string',
+            'email'=>'required|string|email',
+            'phone'=>'required|string',
+            'amount'=>[
                 'numeric',
+                'minimum:10000',
                 Rule::requiredIf($this->input('fundraising') == 1)
             ],
             'payment_method' => 'string',
