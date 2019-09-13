@@ -88,8 +88,10 @@ class DonationApiController extends Controller
      */
     public function store(StoreDonationRequest $request)
     {
-        // Make a unique code.
-        $this->makeUniqueTransactionCode($request);
+        if ($request->has('amount')) {
+            // Make a unique code.
+            $this->makeUniqueTransactionCode($request);
+        }
 
         if ($request->hasFile('image_file')) {
             $request->merge([

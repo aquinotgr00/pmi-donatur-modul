@@ -257,6 +257,11 @@ class CampaignApiController extends Controller
         return response()->success($campaign);
     }
 
+    public function donatorList(Campaign $campaign)
+    {
+        return response()->success($campaign->getDonations()->paginate(5));
+    }
+
     public function toggle(Campaign $campaign,$toggleAttribute) {
         $togglables = [
             'visibility'=>'hidden',

@@ -54,5 +54,8 @@ Route::group(['prefix'=>config('admin.prefix', 'admin'),'middleware' => 'auth:ad
 });
 
 
-Route::get('app/campaigns'     , 'CampaignApiController@index')->name("campaigns.app.index");
-Route::get('app/campaigns/{campaign}', 'CampaignApiController@show' )->name("campaigns.app.show" );
+Route::group(['prefix' => 'app/campaigns', 'as' => 'campaigns.app.'], function () {
+    Route::get('/'     , 'CampaignApiController@index')->name('index');
+    Route::get('/{campaign}', 'CampaignApiController@show' )->name('show');
+    Route::get('/{campaign}/donators', 'CampaignApiController@donatorList')->name('donator-list');
+});
