@@ -13,22 +13,22 @@ class Campaign extends Model
 {
     use SoftDeletes;
     protected $fillable = [
-    'admin_id', 
-    'type_id', 
-    'title',
-    'image_file_name',
-    'image', 
-    'description', 
-    'amount_goal',
-    'start_campaign', 
-    'finish_campaign',
-    'fundraising',
-    'publish'
+        'admin_id', 
+        'type_id', 
+        'title',
+        'image_file_name',
+        'image', 
+        'description', 
+        'amount_goal',
+        'start_campaign', 
+        'finish_campaign',
+        'fundraising',
+        'publish'
     ];
     
     protected $dates = [
-    'start_campaign',
-    'finish_campaign'
+        'start_campaign',
+        'finish_campaign'
     ];
     
     protected $appends  = ['amount_donation','ranges_donation', 'formatted_title','list_donators','image_url'];
@@ -62,7 +62,9 @@ class Campaign extends Model
     public function getDonations()
     {
         if (class_exists('\BajakLautMalaka\PmiDonatur\Donation')) {
-            return $this->hasMany('\BajakLautMalaka\PmiDonatur\Donation', 'campaign_id', 'id')->orderBy('created_at', 'DESC');
+            return $this->hasMany('\BajakLautMalaka\PmiDonatur\Donation', 'campaign_id', 'id')
+                ->where('status', 3)
+                ->orderBy('created_at', 'DESC');
         }
         return null;
     }
