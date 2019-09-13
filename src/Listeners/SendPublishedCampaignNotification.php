@@ -7,14 +7,16 @@ use Berkayk\OneSignal\OneSignalClient;
 
 class SendPublishedCampaignNotification
 {
+    private $pushNotificationClient;
+    
     /**
      * Create the event listener.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(OneSignalClient $pushNotificationClient)
     {
-        
+        $this->pushNotificationClient = $pushNotificationClient;
     }
 
     /**
@@ -25,10 +27,6 @@ class SendPublishedCampaignNotification
      */
     public function handle(CampaignPublished $event)
     {
-        $pushNotificationAppId = config('donation.push_notification.app_id',env('ONESIGNAL_APP_ID'));
-        $pushNotificationRestApiKey = config('donation.push_notification.rest_api_key',env('ONESIGNAL_REST_API_KEY'));
-        $pushNotificationClient = new OneSignalClient($pushNotificationAppId, $pushNotificationRestApiKey, $pushNotificationRestApiKey);
-        
-        $pushNotificationClient->sendNotificationToAll($event->campaign->title, null, null, null, null);
+        $this->pushNotificationClient->sendNotificationToAll($event->campaign->title, null, null, null, null);
     }
 }
