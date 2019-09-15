@@ -172,8 +172,18 @@ class DonatorApiController extends Controller
         $response = [
             'access_token' => $tokenResult->accessToken,
             'donator_id'   => $user->donator ? $user->donator->id:null,
-            'volunteer_id' => $user->volunteer ? $user->volunteer->id:null
+            'volunteer_id' => null
         ];
+        
+        if ($user->volunteer) {
+            if ($user->volunteer->verified) {
+              $response['volunteer_id'] = $user->volunteer->id;
+            } else {
+                $response = [
+                    'message' => 'Please wait for us to verify you.'
+                ];
+            }
+        }
 
         return response()->success($response);
     }
