@@ -179,9 +179,7 @@ class DonatorApiController extends Controller
             if ($user->volunteer->verified) {
               $response['volunteer_id'] = $user->volunteer->id;
             } else {
-                $response = [
-                    'message' => 'Please wait for us to verify you.'
-                ];
+                return response()->fail(['message' => 'Please wait us to verify you.']);
             }
         }
 
