@@ -112,15 +112,7 @@ class DonationApiController extends Controller
         $donation = $this->donations->create($request->all());
         
         if ($request->has('donation_items')) {
-             
-            $items = collect($request->donation_items)->map(function ($donation) {
-                    $donation = json_decode($donation);
-                    $donation = (array) $donation;
-                    return $donation;
-                })
-            ->all();
-        
-            $donation->donationItems()->createMany($items);
+            $donation->donationItems()->createMany($request->donation_items);
         }
         
         if (auth('admin')->user()) {
