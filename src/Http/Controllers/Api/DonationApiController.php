@@ -106,6 +106,14 @@ class DonationApiController extends Controller
                 'status' => 3
             ]);
         }
+        //save donator name at list donator
+        if ($request->has('phone')) {
+            $donatorData    = $request->only('name','phone');
+            $donator        = Donator::firstOrCreate($donatorData);
+            $request->merge([
+                'donator_id' => $donator->id
+            ]);
+        }
 
         $this->makeInvoiceID($request);
             
@@ -216,17 +224,8 @@ class DonationApiController extends Controller
         }
 
         if ($request->has('phone')) {
-            
-            $donator = Donator::firstOrCreate(
-                [
-                    'phone'=> $request->phone 
-                ],
-                [
-                    'name' => $request->name,
-                    'email' => $request->email,
-                    'phone' => $request->phone
-                ]
-            );
+            $donatorData = $request->only('name','phone');
+            $donator = Donator::firstOrCreate($donatorData);
 
             if ($request->has('address')) {
                 
