@@ -39,7 +39,7 @@ class StoreDonationRequest extends FormRequest
             'phone'=>'required|string',
             'amount'=>[
                 'numeric',
-                'minimum:10000',
+                'min:10000',
                 Rule::requiredIf($this->input('fundraising') == 1)
             ],
             'payment_method' => 'string',
