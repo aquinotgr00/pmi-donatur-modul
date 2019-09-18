@@ -38,8 +38,8 @@ class StoreDonationRequest extends FormRequest
             'email'=>'required|string|email',
             'phone'=>'required|string',
             'amount'=>[
-                'numeric',
-                'min:10000',
+                'nullable',
+                'gte:10000',
                 Rule::requiredIf($this->input('fundraising') == 1)
             ],
             'payment_method' => 'string',
@@ -61,5 +61,5 @@ class StoreDonationRequest extends FormRequest
             ]);
         }
     }
- 
+
 }
