@@ -206,14 +206,8 @@ class DonationApiController extends Controller
             if (intval($old_status) !== intval($request->status)) {
                 
                 if ($request->status == 3 ) {
-                
-                    $amount_real = 0;
 
-                    foreach ($donation->campaign->list_donators as $key => $value) {
-                        if ($value->status == 3) {
-                            $amount_real += intval($value->amount);
-                        }
-                    }
+                    $amount_real = $donation->campaign->list_donators->where('status', 3)->sum('amount');
 
                     $campaign = Campaign::find($donation->campaign_id);
                     $campaign->amount_real = $amount_real;
