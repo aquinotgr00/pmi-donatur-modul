@@ -31,7 +31,14 @@ class Campaign extends Model
         'finish_campaign'
     ];
     
-    protected $appends  = ['amount_donation','ranges_donation', 'formatted_title','list_donators','image_url'];
+    protected $appends  = [
+      'amount_donation',
+      'ranges_donation',
+      'formatted_title',
+      'list_donators',
+      'image_url',
+      // 'approved_donators',
+    ];
     
     /**
      * Global Scope - sort by latest
@@ -63,7 +70,6 @@ class Campaign extends Model
     {
         if (class_exists('\BajakLautMalaka\PmiDonatur\Donation')) {
             return $this->hasMany('\BajakLautMalaka\PmiDonatur\Donation', 'campaign_id', 'id')
-                ->where('status', 3)
                 ->orderBy('created_at', 'DESC')
                 ->take(5);
         }
@@ -157,7 +163,7 @@ class Campaign extends Model
     {
         $donations = [];
         if (isset($this->getDonations)) {
-            $donations = $this->getDonations->where('status',3);
+            $donations = $this->getDonations;
         }
         return $donations;
     }

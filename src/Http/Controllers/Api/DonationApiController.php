@@ -174,7 +174,7 @@ class DonationApiController extends Controller
             'status' => 2
         ]);
 
-        return response()->success($data);
+        return response()->success($donation);
     }
 
     private function handleDateRanges(Request $request, $donations)
@@ -195,7 +195,6 @@ class DonationApiController extends Controller
 
     public function update(UpdateDonationRequest $request, Donation $donation)
     {
-        
         $except = [];
 
         if ($request->has('status')) {
@@ -206,13 +205,9 @@ class DonationApiController extends Controller
         
             if (intval($old_status) !== intval($request->status)) {
                 
-                if ($donation->status === 3 ){
-                
-                    $amount_real = 0;
+                if ($request->status == 3 ) {
 
-                    foreach ($donation->campaign->list_donators as $key => $value) {
-                        $amount_real += intval($value->amount);
-                    }
+                    $amount_real = $donation->campaign->list_donators->where('status', 3)->sum('amount');
 
                     $campaign = Campaign::find($donation->campaign_id);
                     $campaign->amount_real = $amount_real;
