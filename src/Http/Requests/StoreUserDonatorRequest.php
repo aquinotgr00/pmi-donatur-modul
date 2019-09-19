@@ -26,7 +26,7 @@ class StoreUserDonatorRequest extends FormRequest
         return [
             'name'        => 'required|string',
             'email'       => 'required|string|email|unique:users',
-            'password'    => 'required|string|confirmed',
+            'password'    => 'sometimes|required|string|confirmed',
             'phone'       => 'required|string|unique:donators',
             'image_file'  => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'dob'         => 'date_format:Y-m-d',
