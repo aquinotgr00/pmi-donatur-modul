@@ -171,11 +171,11 @@ class DonatorApiController extends Controller
 
         $response = [
             'access_token' => $tokenResult->accessToken,
-            'donator_id'   => $user->donator ? $user->donator->id:null,
+            'donator_id'   => $request->mode === 'Donatur' ? $user->donator->id:null,
             'volunteer_id' => null
         ];
-        
-        if ($user->volunteer) {
+		
+        if ($request->mode === 'Relawan' && $user->volunteer) {
             if ($user->volunteer->verified) {
               $response['volunteer_id'] = $user->volunteer->id;
             } else {
