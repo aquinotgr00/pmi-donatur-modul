@@ -45,6 +45,7 @@ class MidtransController extends Controller
         
         if (isset($result['transaction_status'])) {
             switch ($result['transaction_status']) {
+                case 'capture':
                 case 'settlement':
                 event(new PaymentCompleted($donation));
                 break;
