@@ -241,21 +241,6 @@ class DonationApiController extends Controller
         $data = ($except)? $request->except($except) : $request->all();
 
         $donation->update($data);
-        
-        if (isset($donation->donator)) {
-            $donation->donator;
-        }
-
-        if (isset($donation->donationItems)) {
-            $donation->donationItems;
-        }
-        
-        if (isset($donation->campaign)) {
-            if (isset($donation->campaign->getType)) {
-                $donation->campaign->getType;
-            }
-        }
-
-        return response()->success($donation);
+        return response()->success($donation->load('donator','donationItems','campaign.getType'));
     }
 }
