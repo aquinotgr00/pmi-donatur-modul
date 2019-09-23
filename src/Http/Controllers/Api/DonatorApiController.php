@@ -270,14 +270,11 @@ class DonatorApiController extends Controller
 
     public function profile()
     {
-        $user    = auth()->user();
-        $donator = $user->donator;
-        if (!$donator)
+        $user    = $this->users->where('email', auth()->user()->email)->with('donator','donator.donations','donator.donations.campaign')->first();
+        if (!$user->donator)
             return response()->fail(['message' => 'Donator not found.']);
-        if ($donator->donations)
-            $donator->donations;
 
-        return response()->success($donator);
+        return response()->success($user->donator);
     }
 
     /**
