@@ -3,6 +3,7 @@
 namespace BajakLautMalaka\PmiDonatur\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\User;
 
 class StoreUserDonatorRequest extends FormRequest
 {
@@ -25,7 +26,17 @@ class StoreUserDonatorRequest extends FormRequest
     {
         return [
             'name'        => 'required|string',
-            'email'       => 'required|string|email|unique:users',
+            'email'       => [
+                'required',
+                'string',
+                'email',
+                function ($attribute, $value, $fail) {
+                    $registered = User::whereHas('donator')->where('email', $value)->count();
+                    if ($registered) {
+                        $fail("$attribute $value".' already registered as donator');
+                    }
+                }
+            ],
             'password'    => 'sometimes|required|string|confirmed',
             'phone'       => 'required|string|unique:donators',
             'image_file'  => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',

@@ -104,15 +104,18 @@ class DonatorApiController extends Controller
             'password' => bcrypt($request->password)
         ]);
 
+        $user = $this->users->where('email', $request->email)->first();
+
         if ($request->has('image_file')) {
-          $image = $request->image_file->store('donator-picture', 'public');
-          $request->request->add([
-              'image' => $image
-          ]);
+            $image = $request->image_file->store('donator-picture', 'public');
+            $request->request->add([
+                'image' => $image
+            ]);
         }
 
-        // TODO: add custom user fields to config so that anyone could adjust
-        $user  = $this->users->create($request->only(['name', 'email', 'password']));
+        if ($user === null) {
+            $user  = $this->users->create($request->only(['name', 'email', 'password']));
+        }
         $token = $user->createToken('PMI');
         
         // add user id to request
