@@ -70,6 +70,7 @@ class Campaign extends Model
     {
         if (class_exists('\BajakLautMalaka\PmiDonatur\Donation')) {
             return $this->hasMany('\BajakLautMalaka\PmiDonatur\Donation', 'campaign_id', 'id')
+                ->with('donator')
                 ->orderBy('created_at', 'DESC')
                 ->take(5);
         }
