@@ -26,6 +26,8 @@ class Donator extends Model
         'postal_code', 'gender', 'verified', 'user_id'
     ]; 
 
+    protected $appends = ['image_url'];
+
     public function user()
     {
         return $this->belongsTo('\App\User');
@@ -93,6 +95,11 @@ class Donator extends Model
     public function sendEmailAndTokenReset($data)
     {
         dispatch(new SendEmailDonatorResetPassword($data));
+    }
+
+    public function getImageUrlAttribute()
+    {
+        return asset(Storage::url($this->image)); 
     }
     
     /**

@@ -111,7 +111,8 @@ class DonationApiController extends Controller
             $donatorData    = $request->only('name','phone');
             $donator        = Donator::firstOrCreate($donatorData);
             $request->merge([
-                'donator_id' => $donator->id
+                'donator_id' => $donator->id,
+                'guest' => $donator->user_id === null ? true:false
             ]);
         }
 
