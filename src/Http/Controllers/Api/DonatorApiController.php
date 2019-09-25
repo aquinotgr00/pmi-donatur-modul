@@ -164,9 +164,9 @@ class DonatorApiController extends Controller
         if (!Auth::attempt($request->only(['email', 'password'])))
             return response()->fail([ "message" => "Account does not exist" ], 401);
 
-        $user        = $request->user();
+        $user = $request->user();
         $tokenResult = $user->createToken('PMI');
-        $token       = $tokenResult->token;
+        $token = $tokenResult->token;
         if ($request->remember_me) {
             $token->expires_at = Carbon::now()->addWeeks(1);
         }
@@ -180,7 +180,9 @@ class DonatorApiController extends Controller
 		
         if ($request->mode === 'Relawan' && $user->volunteer) {
             if ($user->volunteer->verified) {
-              $response['volunteer_id'] = $user->volunteer->id;
+                $user->device_id = $request->device_id;
+                $user->save();
+                $response['volunteer_id'] = $user->volunteer->id;
             } else {
                 return response()->fail(['message' => 'Please wait us to verify you.']);
             }
